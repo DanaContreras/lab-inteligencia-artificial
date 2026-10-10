@@ -76,13 +76,18 @@ lista.addEventListener('keydown', (event) => {
 
 // Modal de nueva muestra
 const modal = document.getElementById('modal-muestra');
+const canvas = document.getElementById('lienzo');
+const modalDibujo = document.getElementById('modal-dibujo');
+const tituloDibujo = document.getElementById('titulo-dibujo');
 
 // Categoría desde la que se abrió el modal: es a la que va a ir el dibujo
 // o la foto que se elija.
 let categoriaActiva = null;
 
+
 function abrirModal(tarjeta) {
   categoriaActiva = tarjeta;
+  console.log('Abriendo modal para:', categoriaActiva);
   modal.showModal();
 }
 
@@ -92,18 +97,28 @@ modal.addEventListener('click', (event) => {
   if (event.target === modal) modal.close();
 });
 
-modal.addEventListener('close', () => {
-  categoriaActiva = null;
-});
-
 for (const boton of modal.querySelectorAll('[data-tipo]')) {
   boton.addEventListener('click', () => {
-    // TODO(paso siguiente): abrir el canvas de dibujo o la cámara y sumar
-    // la muestra a categoriaActiva.
+    const tipo = boton.dataset.tipo;
+    const nombreCategoria = categoriaActiva ? categoriaActiva.querySelector('[data-nombre]').value.trim() : 'Sin nombre'
+
+    modal.close();
+
+    if (tipo === 'dibujo') {
+      tituloDibujo.textContent = `${nombreCategoria}`;
+      modalDibujo.showModal();
+      prepararLienzo();
+      elegirHerramienta('lapiz');
+    } else if (tipo === 'foto') {
+      console.log('Seleccionaste foto para:', categoriaActiva);
+    }
     modal.close();
   });
 }
 
+modal.addEventListener('close', () => {
+  categoriaActiva = null;
+});
 
 // Estado inicial: dos categorias
 crearCategoria();

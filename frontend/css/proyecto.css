@@ -363,3 +363,212 @@ body[data-menu="abierto"] .topbar {
     height: 2.5rem;
   }
 }
+
+/*Canva*/
+
+/*Encabezado*/
+.modal-encabezado {
+    display: flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+}
+
+.modal-encabezado h1 {
+    margin: 0;
+    text-align: left;
+}
+
+.cerrar-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.cerrar-modal .icono {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+
+.editor-dibujo {
+    display: grid;
+    grid-template-columns: minmax(0, 500px) auto;
+    gap: 24px;
+    align-items: start;
+    width: fit-content;
+}
+
+/* Lienzo */
+.zona-lienzo {
+    min-width: 0;
+}
+
+#lienzo {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    border: 2px solid var(--gris-900);
+    border-radius: 10px;
+    background: #fff;
+    box-sizing: border-box;
+    touch-action: none;
+}
+
+/* Panel de herramientas */
+.panel-herramientas {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.grupo-colores,
+.grupo-herramientas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contenedor-herramientas {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contenedor-herramientas .opcion-icono {
+    width: 6rem;
+    height: 6rem;
+}
+
+/* Herramienta seleccionada */
+button.opcion.herramienta-activa .icono {
+  color: var(--acento);
+}
+
+
+
+/* El icono también toma el color del botón */
+.opcion .icono {
+    fill: currentColor;
+}
+
+/*Contenedor de colores*/
+.contenedor-circulos {
+    display: flex;
+    flex-direction: column;
+    flex-wrap:nowrap;
+    gap: 8px; 
+    width:auto
+}
+
+.circulo {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s, border-color 0.12s;
+    outline: none;
+    flex-shrink: 0;
+}
+
+.circulo:hover {
+    transform: scale(1.15);
+}
+
+.circulo.active {
+    border-color: #222;
+    border: 3px solid #222;
+    transform: scale(1.15);
+}
+
+/* Colores individuales */
+.circulo-negro  { background-color: #000000; }
+.circulo-rojo { background-color: #FF0000; }
+.circulo-azul { background-color: #0B52D6; }
+.circulo-verde { background-color: #21c640; }
+.circulo-amarillo { background-color: #FFD133; }
+.circulo-violeta { background-color: #9d23de; }
+.circulo-rosa { background-color: #e773e0; }
+.circulo-marron { background-color: #89602e; }
+.circulo-naranja { background-color: #FD801A; }
+
+.acciones-dibujo {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    #modal-dibujo {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-panel {
+        padding: 16px;
+    }
+
+    .editor-dibujo {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    #lienzo {
+        max-width: 100%;
+    }
+
+    .panel-herramientas {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .grupo-herramientas,
+    .grupo-colores {
+        width: 100%;
+    }
+
+    .contenedor-herramientas {
+        flex-direction: row;
+        display: flex;
+        gap: 8px;
+    }
+
+    .contenedor-herramientas .opcion {
+        justify-content: center;
+        flex: 1;
+    }
+
+    .contenedor-circulos {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .acciones-dibujo {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .acciones-dibujo .btn-guardar {
+        grid-column: 1 / -1;
+    }
+}
