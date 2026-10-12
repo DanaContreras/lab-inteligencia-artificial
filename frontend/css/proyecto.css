@@ -572,3 +572,13 @@ button.opcion.herramienta-activa .icono {
         grid-column: 1 / -1;
     }
 }
+
+/*Cámara*/
+video {
+  width: 100%;
+  background: #222;
+}
+
+.oculto {
+  display: none;
+}

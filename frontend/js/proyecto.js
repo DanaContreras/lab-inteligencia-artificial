@@ -79,6 +79,8 @@ const modal = document.getElementById('modal-muestra');
 const canvas = document.getElementById('lienzo');
 const modalDibujo = document.getElementById('modal-dibujo');
 const tituloDibujo = document.getElementById('titulo-dibujo');
+const modalFoto = document.getElementById('modal-camara');
+const tituloFoto = document.getElementById('titulo-foto');
 
 // Categoría desde la que se abrió el modal: es a la que va a ir el dibujo
 // o la foto que se elija.
@@ -110,7 +112,9 @@ for (const boton of modal.querySelectorAll('[data-tipo]')) {
       prepararLienzo();
       elegirHerramienta('lapiz');
     } else if (tipo === 'foto') {
-      console.log('Seleccionaste foto para:', categoriaActiva);
+      tituloFoto.textContent = `${nombreCategoria}`;
+      modalFoto.showModal();
+      iniciarCamara();
     }
     modal.close();
   });

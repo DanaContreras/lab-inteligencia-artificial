@@ -160,73 +160,93 @@
   </dialog>
 
 
-<dialog id="modal-dibujo" class="modal" aria-labelledby="modal-titulo" >
-  
-  <div class="modal-panel">
-    <header class="modal-encabezado">
-      <h1 id="titulo-dibujo">Categoria</h1>
+  <dialog id="modal-dibujo" class="modal" aria-labelledby="modal-titulo" >
+    
+    <div class="modal-panel">
+      <header class="modal-encabezado">
+        <h1 id="titulo-dibujo"> </h1>
 
-      <button type="button" class="cerrar-modal"
-              onclick="document.getElementById('modal-dibujo').close()"
-              aria-label="Cerrar">
-          <span class="" aria-hidden="true">
-              <svg class="icono"><use href="#cerrar"></use></svg>
-          </span>
-      </button>
-    </header>
+        <button type="button" class="cerrar-modal"
+                onclick="document.getElementById('modal-dibujo').close()"
+                aria-label="Cerrar">
+            <span class="" aria-hidden="true">
+                <svg class="icono"><use href="#cerrar"></use></svg>
+            </span>
+        </button>
+      </header>
 
 
-    <div class="editor-dibujo">
+      <div class="editor-dibujo">
 
-      <canvas id="lienzo"></canvas>
+        <canvas id="lienzo"></canvas>
 
-      <aside class="panel-herramientas">
-        <div class="grupo-herramientas">
-          <div class="contenedor-herramientas">
-            <button type="button" class="opcion herramienta-activa"
-                    data-herramienta="lapiz" aria-pressed="true">
-              <span class="opcion-icono" aria-hidden="true">
-                <svg class="icono"><use href="#lapiz"></use></svg>
-              </span>
-              <span class="opcion-texto">Lápiz</span>
-            </button>
+        <aside class="panel-herramientas">
+          <div class="grupo-herramientas">
+            <div class="contenedor-herramientas">
+              <button type="button" class="opcion herramienta-activa"
+                      data-herramienta="lapiz" aria-pressed="true">
+                <span class="opcion-icono" aria-hidden="true">
+                  <svg class="icono"><use href="#lapiz"></use></svg>
+                </span>
+                <span class="opcion-texto">Lápiz</span>
+              </button>
 
-            <button type="button" class="opcion"
-                    data-herramienta="goma" aria-pressed="false">
-              <span class="opcion-icono" aria-hidden="true">
-                <svg class="icono"><use href="#goma"></use></svg>
-              </span>
-              <span class="opcion-texto">Goma</span>
-            </button>
+              <button type="button" class="opcion"
+                      data-herramienta="goma" aria-pressed="false">
+                <span class="opcion-icono" aria-hidden="true">
+                  <svg class="icono"><use href="#goma"></use></svg>
+                </span>
+                <span class="opcion-texto">Goma</span>
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="grupo-colores">
-          <div class="contenedor-circulos">
-            <button class="circulo circulo-negro active" onclick="changeColor('#000000')"></button>
-            <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
-            <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
-            <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
-            <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
-            <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
-            <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
-            <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
-            <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
+          <div class="grupo-colores">
+            <div class="contenedor-circulos">
+              <button class="circulo circulo-negro active" onclick="changeColor('#000000')"></button>
+              <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
+              <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
+              <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
+              <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
+              <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
+              <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
+              <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
+              <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
+            </div>
           </div>
-        </div>
-      </aside>                  
+        </aside>                  
+      </div>
+
+      <div class="acciones-dibujo">
+        <button type="button" id="limpiar-dibujo">Limpiar</button>
+        <button type="button" id="guardar-dibujo" class="btn-guardar">
+          Guardar dibujo
+        </button>
+      </div> 
+
     </div>
+  </dialog>
 
-    <div class="acciones-dibujo">
-      <button type="button" id="limpiar-dibujo">Limpiar</button>
-      <button type="button" id="cancelar-dibujo">Cancelar</button>
-      <button type="button" id="guardar-dibujo" class="btn-guardar">
-        Guardar dibujo
-      </button>
-    </div> 
+  <dialog id="modal-camara" class="modal" aria-labelledby="modal-titulo" >
+    <div class="modal-panel">
+      <header class="modal-encabezado">
+        <h1 id="titulo-foto"> </h1>
 
-  </div>
-</dialog>
+        <button type="button" class="cerrar-modal"
+                onclick="document.getElementById('modal-camara').close()"
+                aria-label="Cerrar">
+            <span class="" aria-hidden="true">
+                <svg class="icono"><use href="#cerrar"></use></svg>
+            </span>
+        </button>
+      </header>
+
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas" class="oculto"></canvas>
+      <img id="foto" class="oculto" alt="Foto capturada">
+      <button id="startbutton">Tomar foto</button>
+    </div>
+  </dialog>
 
  
  

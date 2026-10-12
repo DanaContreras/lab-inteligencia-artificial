@@ -1,3 +1,5 @@
+
+/*Dibujo */
 const ctx = canvas.getContext('2d');
 
 let drawColor = '#000000';
@@ -80,10 +82,6 @@ function changeColor(color) {
 
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
-document.getElementById('cancelar-dibujo').addEventListener('click', () => {
-  modalDibujo.close();
-});
-
 document.getElementById('guardar-dibujo').addEventListener('click', () => {
   const tarjeta = categoriaActiva;
   const imagen = canvas.toDataURL('image/jpg');
@@ -95,3 +93,48 @@ document.getElementById('guardar-dibujo').addEventListener('click', () => {
   //agregarMuestra(tarjeta, imagen);
   modalDibujo.close();
 });
+
+
+
+/* FOTOS */
+const video =document.getElementById('video');
+const canvasFoto = document.getElementById('canvas');
+const foto = document.getElementById('foto');
+
+
+async function iniciarCamara() {
+  try {
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      throw new Error(
+        'La cámara no está disponible. Usa HTTPS o localhost.'
+      );
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false
+    });
+
+    video.srcObject = stream;
+    await video.play();
+
+  } catch (error) {
+      console.error('Error de cámara:', error);
+
+      alert('No se pudo acceder a la cámara: ' + error.name + ' - ' + error.message);
+  }
+}
+
+function detenerCamara() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  video.srcObject = null;
+}
+
+document.getElementById('cerrar-modal').addEventListener('click', () => {detenerCamara(); modal.close();});
+
+modal.addEventListener('close', detenerCamara);
