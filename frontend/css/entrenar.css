@@ -1,0 +1,190 @@
+/* Pasos */
+.paso-completo .paso-numero {
+  border-color: var(--gris-900);
+  color: var(--gris-900);
+}
+
+.paso-completo .paso-etiqueta {
+  color: var(--gris-900);
+}
+
+.pasos-conector-completo {
+  background-color: var(--gris-900);
+}
+
+/* Escenario */
+.escenario {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(7rem, 14rem) minmax(0, calc(38rem * 600 / 370));
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  min-height: 26rem;
+  margin-top: 0;
+}
+
+.escenario[hidden] {
+  display: none;
+}
+
+.escenario-dibujo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dibujo-actual {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /*border: var(--borde) solid var(--gris-900);*/
+  border-radius: var(--radio-grande);
+  background-color: var(--blanco);
+  transition: opacity 300ms ease;
+}
+
+.dibujo-actual.desvanecido {
+  opacity: 0;
+}
+
+.dibujo-actual.fragmentado {
+  opacity: 0;
+  transition: none;
+}
+
+.dibujo-categoria {
+  min-height: 1.5em;
+  font-size: var(--texto-sm);
+  color: var(--gris-600);
+  text-align: center;
+}
+
+.particulas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Red */
+.red {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 38rem;
+  overflow: visible;
+  align-self: start;
+}
+
+.red-conexion {
+  stroke: var(--gris-300);
+  stroke-width: 1.5;
+}
+
+.senal {
+  stroke: var(--acento);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: recorrer var(--recorrido) ease-in-out forwards,
+             apagar 400ms ease var(--recorrido) forwards;
+}
+
+@keyframes recorrer {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes apagar {
+  to { opacity: 0; }
+}
+
+.nodo {
+  fill: var(--gris-500);
+  stroke: var(--gris-500);
+  /*stroke-width: 3;*/
+  transition: fill 200ms ease;
+}
+
+.nodo-activo {
+  fill: var(--acento);
+}
+
+.red-capa {
+  font-family: var(--fuente);
+  font-size: 24px;
+  fill: var(--gris-600);
+  text-anchor: middle;
+}
+
+/* Navegación */
+.boton-anterior {
+  right: auto;
+  left: var(--margen-pagina);
+}
+
+.boton-anterior .boton-siguiente-icono {
+  transform: scaleX(-1);
+}
+
+@media (min-width: 768px) {
+  body[data-menu] .boton-anterior {
+    transition: left var(--transicion), background-color 150ms ease;
+  }
+
+  body[data-menu="abierto"] .boton-anterior {
+    left: calc(var(--ancho-panel) + var(--margen-pagina));
+  }
+}
+
+/* Mensaje de estado */
+.estado {
+  width: fit-content;
+  margin: 0 auto 0.1rem;
+  padding: 1rem 0.1rem 0;
+  white-space: nowrap;
+
+  /*border: var(--borde) solid var(--gris-900);
+  border-radius: 9999px;
+  background-color: var(--blanco);*/
+}
+
+.estado-puntos {
+  display: inline-block;
+  width: 3ch;
+  text-align: left;
+}
+
+.estado-puntos::after {
+  content: '...';
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: puntos 1.2s steps(4) infinite;
+}
+
+@keyframes puntos {
+  to { width: 4ch; }
+}
+
+.sin-datos {
+  margin-top: 2rem;
+  color: var(--gris-600);
+}
+
+.sin-datos a {
+  color: var(--acento);
+}
+
+@media (max-width: 600px) {
+  .escenario {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1rem;
+    min-height: 18rem;
+  }
+}

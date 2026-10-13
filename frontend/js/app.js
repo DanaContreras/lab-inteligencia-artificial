@@ -19,7 +19,7 @@ function setMenu(abierto) {
   menuToggle.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
 }
 
-setMenu(esDesktop.matches);
+setMenu(false);
 
 menuToggle.addEventListener('click', () => {
   setMenu(sidebar.dataset.open !== 'true');
@@ -28,12 +28,12 @@ menuToggle.addEventListener('click', () => {
 overlay.addEventListener('click', () => setMenu(false));
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && !esDesktop.matches) {
+  if (event.key === 'Escape') {
     setMenu(false);
   }
 });
 
-esDesktop.addEventListener('change', (event) => setMenu(event.matches));
+esDesktop.addEventListener('change', () => setMenu(false));
 
 
 // Nivel básico / avanzado
@@ -56,3 +56,18 @@ nivelInput.addEventListener('change', (event) => {
 const nivelGuardado = localStorage.getItem(NIVEL_KEY) === 'avanzado';
 nivelInput.checked = nivelGuardado;
 aplicarNivel(nivelGuardado);
+
+
+// Navegación con flechas
+document.addEventListener('keydown', (event) => {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (event.target.closest('input, textarea, select, [contenteditable]')) return;
+  if (document.querySelector('dialog[open]')) return;
+
+  const boton = {
+    ArrowLeft: document.querySelector('.boton-anterior'),
+    ArrowRight: document.getElementById('siguiente-paso'),
+  }[event.key];
+
+  if (boton && !boton.disabled) boton.click();
+});

@@ -101,8 +101,6 @@ body {
   visibility: hidden;
 }
 
-/* El atributo hidden de HTML no alcanza a los elementos SVG, así que el
-   sprite de iconos se ocultaría a medias y ocuparía 300x150. */
 svg[hidden] {
   display: none;
 }

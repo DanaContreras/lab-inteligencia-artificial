@@ -3,6 +3,7 @@
 const lista          = document.getElementById('lista-categorias');
 const plantilla      = document.getElementById('tpl-categoria');
 const btnAgregar     = document.getElementById('agregar-categoria');
+const btnSiguiente   = document.getElementById('siguiente-paso');
 
 const MIN_CATEGORIAS = 2;
 let contador = 0;
@@ -19,6 +20,7 @@ function crearCategoria(nombre) {
   tarjeta.querySelector('[data-eliminar]').addEventListener('click', () => {
     tarjeta.remove();
     actualizarBotonesEliminar();
+    actualizarSiguiente();
   });
 
   tarjeta.querySelector('[data-agregar-muestra]').addEventListener('click', () => {
@@ -27,6 +29,7 @@ function crearCategoria(nombre) {
 
   lista.append(tarjeta);
   actualizarBotonesEliminar();
+  actualizarSiguiente();
   return tarjeta;
 }
 
@@ -85,6 +88,7 @@ const tituloFoto = document.getElementById('titulo-foto');
 // Categoría desde la que se abrió el modal: es a la que va a ir el dibujo
 // o la foto que se elija.
 let categoriaActiva = null;
+let categoriaDestino = null;
 
 
 function abrirModal(tarjeta) {
@@ -104,6 +108,7 @@ for (const boton of modal.querySelectorAll('[data-tipo]')) {
     const tipo = boton.dataset.tipo;
     const nombreCategoria = categoriaActiva ? categoriaActiva.querySelector('[data-nombre]').value.trim() : 'Sin nombre'
 
+    categoriaDestino = categoriaActiva;
     modal.close();
 
     if (tipo === 'dibujo') {
@@ -124,6 +129,47 @@ modal.addEventListener('close', () => {
   categoriaActiva = null;
 });
 
-// Estado inicial: dos categorias
-crearCategoria();
-crearCategoria();
+// Muestras
+function agregarMuestra(tarjeta, imagen) {
+  const miniatura = document.createElement('img');
+  miniatura.src = imagen;
+  miniatura.alt = '';
+  miniatura.className = 'muestra';
+  miniatura.dataset.muestra = '';
+
+  tarjeta.querySelector('[data-agregar-muestra]').before(miniatura);
+  actualizarSiguiente();
+}
+
+function actualizarSiguiente() {
+  const listo = [...lista.children].every((t) => t.querySelector('[data-muestra]'));
+  btnSiguiente.disabled = !listo;
+  btnSiguiente.title = listo ? 'Entrenar' : 'Agrega al menos un dato en cada categoría';
+}
+
+
+// Paso 2
+btnSiguiente.addEventListener('click', () => {
+  const datos = [...lista.children].map((tarjeta) => ({
+    nombre: tarjeta.querySelector('[data-nombre]').value.trim(),
+    muestras: [...tarjeta.querySelectorAll('[data-muestra]')].map((img) => img.src),
+  }));
+
+  sessionStorage.setItem('neurofai:datos', JSON.stringify(datos));
+  location.href = './entrenar.html';
+});
+
+// Estado inicial
+const guardados = new URLSearchParams(location.search).has('continuar')
+  ? JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]')
+  : [];
+
+if (guardados.length) {
+  for (const { nombre, muestras } of guardados) {
+    const tarjeta = crearCategoria(nombre);
+    muestras.forEach((imagen) => agregarMuestra(tarjeta, imagen));
+  }
+} else {
+  crearCategoria();
+  crearCategoria();
+}

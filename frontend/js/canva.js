@@ -83,16 +83,17 @@ function changeColor(color) {
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
 document.getElementById('guardar-dibujo').addEventListener('click', () => {
-  const tarjeta = categoriaActiva;
-  const imagen = canvas.toDataURL('image/jpg');
-
-  const enlace = document.createElement('a');
-  //enlace.download = 'mi-dibujo.png';
-
-
-  //agregarMuestra(tarjeta, imagen);
+  if (categoriaDestino) agregarMuestra(categoriaDestino, miniaturaLienzo());
   modalDibujo.close();
 });
+
+function miniaturaLienzo(lado = 160) {
+  const copia = document.createElement('canvas');
+  copia.width = lado;
+  copia.height = lado;
+  copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
+  return copia.toDataURL('image/jpeg', 0.85);
+}
 
 
 

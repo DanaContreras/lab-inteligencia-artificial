@@ -189,6 +189,15 @@ body[data-menu="abierto"] .topbar {
   color: var(--acento);
 }
 
+.muestra {
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  border: var(--borde) solid var(--gris-900);
+  border-radius: 0.75rem;
+  background-color: var(--blanco);
+}
+
 /* Agregar categoría */
 
 .boton-agregar {
