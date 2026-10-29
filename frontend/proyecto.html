@@ -42,6 +42,13 @@
       <path d="m6 6 12 12" />
     </symbol>
 
+    <symbol id="subir_imagen" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
+      <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"/>
+      <path d="m14 19.5 3-3 3 3"/>
+      <path d="M17 22v-5.5"/>
+      <circle cx="9" cy="9" r="2"/>
+    </symbol>
   </svg>
 
   <button id="menu-toggle"
@@ -75,7 +82,28 @@
     </div>
 
     <nav class="panel-nav">
-      <a href="./proyecto.html" class="enlace-menu">Nuevo proyecto</a>
+      <a class="enlace-menu" id="nuevo-proyecto">Nuevo proyecto</a>
+
+      <a class="enlace-menu">
+        <details>
+          <summary>Abrir proyecto</summary>
+            <div class="m">
+              <button id="bOpenL">Desde este equipo</button>
+              <button id="bOpenD">Desde Google Drive</button>
+            </div>
+          </details>
+      </a>
+      
+      <a class="enlace-menu">
+        <details>
+          <summary>Guardar proyecto</summary>
+          <div class="m">
+            <button id="bSaveL">En este equipo</button>
+            <button id="bSaveD">En Google Drive</button>
+          </div>
+        </details>
+      </a>
+
       <button type="button" class="enlace-menu">Tutorial</button>
     </nav>
 
@@ -155,9 +183,17 @@
         </span>
         <span class="opcion-texto">Foto</span>
       </button>
+
+      <button type="button" class="opcion" data-tipo="cargar-foto" id="cargar_imagen">
+        <span class="opcion-icono" aria-hidden="true">
+          <svg><use href="#subir_imagen" /></svg>
+        </span>
+        <span class="opcion-texto">Cargar imágenes</span>
+      </button>
     </div>
   </dialog>
 
+  
 
   <dialog id="modal-dibujo" class="modal" aria-labelledby="modal-titulo" >
     
@@ -247,6 +283,71 @@
     </div>
   </dialog>
 
+  
+
+
+
+  <dialog id="modal-subir-imagenes" class="modal">
+    <div class="modal-panel modal-subida-panel">
+
+      <header class="modal-encabezado">
+        <h2>Agregar imágenes</h2>
+
+        <button
+          type="button"
+          class="cerrar-modal"
+          id="cerrar-subida"
+          aria-label="Cerrar"
+        >
+          &times;
+        </button>
+      </header>
+
+      <div id="drop-zone" class="zona-arrastre" role="button" tabindex="0"
+          aria-label="Arrastra imágenes aquí o pulsa para seleccionar archivos">
+
+        <svg class="icono" aria-hidden="true">
+          <use href="#subir_imagen"></use>
+        </svg>
+
+        <p><strong>Arrastra tus imágenes aquí</strong></p>
+        <p>o haz clic para elegir archivos</p>
+
+      </div>
+
+      <input
+        type="file"
+        id="fImg"
+        accept="image/*"
+        multiple
+        hidden
+      />
+
+      <div class="origenes-imagen">
+        <button type="button" id="elegir-dispositivo">
+          Mi dispositivo
+        </button>
+
+        <button type="button" id="elegir-drive">
+          Google Drive
+        </button>
+      </div>
+
+      <footer class="acciones-subida">
+        <button type="button" id="cancelar-subida">
+          Cancelar
+        </button>
+
+        <button type="button" id="agregar-imagenes" disabled>
+          Agregar imágenes
+        </button>
+      </footer>
+
+    </div>
+  </dialog>
+
+
+
  
  
   <template id="tpl-categoria">
@@ -282,5 +383,7 @@
   <script src="./js/app.js"></script>
   <script src="./js/proyecto.js"></script>
   <script src="./js/canva.js"></script>
+  <script src="./js/imagenes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </body>
 </html>

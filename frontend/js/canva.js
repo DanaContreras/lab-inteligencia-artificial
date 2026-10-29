@@ -83,8 +83,12 @@ function changeColor(color) {
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
 document.getElementById('guardar-dibujo').addEventListener('click', () => {
-  if (categoriaDestino) agregarMuestra(categoriaDestino, miniaturaLienzo());
-  modalDibujo.close();
+  if (categoriaDestino) {
+    console.log("Categoria Destino:", categoriaDestino)
+    agregarMuestra(categoriaDestino, miniaturaLienzo());
+    guardarDibujo(categoriaDestino);
+    limpiarLienzo();
+  }
 });
 
 function miniaturaLienzo(lado = 160) {
@@ -95,12 +99,64 @@ function miniaturaLienzo(lado = 160) {
   return copia.toDataURL('image/jpeg', 0.85);
 }
 
+async function guardarDibujo(categoria){
+    const imagen = lienzo.toDataURL("image/png");
+
+    console.log("Tarjeta activa:", categoriaActiva);
+
+    if (!categoriaActiva) {
+        console.error("No hay una categoría activa");
+        return;
+    }
+
+
+    const campoNombre =  categoriaActiva.querySelector('[data-nombre]');
+    console.log("Categoría recibida:", campoNombre.value);
+
+    try {
+        const respuesta = await fetch(
+            "http://localhost:3000/guardar-dibujo",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    imagen: imagen,
+                    categoria: categoria
+                })
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(
+                resultado.error || "No se pudo guardar"
+            );
+        }
+
+        console.log(resultado.mensaje);
+        alert("¡Dibujo guardado correctamente!");
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("No se pudo guardar el dibujo");
+    }
+}
 
 
 /* FOTOS */
 const video =document.getElementById('video');
 const canvasFoto = document.getElementById('canvas');
 const foto = document.getElementById('foto');
+
+const botonTomar = document.getElementById('startbutton');
+const botonCerrar = document.getElementById('cerrar-modal');
+
+
+let stream = null;
+
 
 
 async function iniciarCamara() {
@@ -127,15 +183,54 @@ async function iniciarCamara() {
   }
 }
 
+
+botonTomar.addEventListener('click', () => {
+  try {
+
+    if (!video.videoWidth || !video.videoHeight) {
+      alert('La cámara todavía no está lista.');
+      return;
+    }
+
+    const ctx = canvasFoto.getContext('2d');
+
+    canvasFoto.width = video.videoWidth;
+    canvasFoto.height = video.videoHeight;
+
+    ctx.drawImage(
+      video,
+      0,
+      0,
+      canvasFoto.width,
+      canvasFoto.height
+    );
+
+    const fotoCapturada = canvasFoto.toDataURL('image/jpeg', 0.9);
+    agregarMuestra(categoriaDestino, fotoCapturada);
+
+  } catch (error) {
+    console.error('Error al agregar la muestra:', error);
+    alert('Error al agregar la muestra: ' + error.message);
+  }
+});
+
+
 function detenerCamara() {
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
     stream = null;
   }
 
+  video.pause();
   video.srcObject = null;
 }
 
-document.getElementById('cerrar-modal').addEventListener('click', () => {detenerCamara(); modal.close();});
+
+
 
 modal.addEventListener('close', detenerCamara);
+
+
+
+
+
