@@ -228,27 +228,6 @@ async function convertirImagenAPNG(img) {
 
 
 
-
-
-async function convertirImagenAPNG(img) {
-  if (!img.complete || !img.naturalWidth) {
-    await new Promise((resolve, reject) => {
-      img.addEventListener("load", resolve, { once: true });
-      img.addEventListener(
-        "error",
-        () => reject(new Error("No se pudo cargar una imagen.")),
-        { once: true }
-      );
-    });
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  canvas.getContext("2d").drawImage(img, 0, 0);
-  return canvas.toDataURL("image/png");
-}
-
 btnSiguiente.addEventListener("click", async () => {
   btnSiguiente.disabled = true;
 
@@ -256,7 +235,7 @@ btnSiguiente.addEventListener("click", async () => {
     const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
     if (!idProyecto) throw new Error("No se encontró el proyecto actual.");
 
-    // 1Datos para el servidor (PNG convertidos)
+    //Datos para el servidor (PNG convertidos)
     const datos = [];
 
     for (const tarjeta of lista.children) {
