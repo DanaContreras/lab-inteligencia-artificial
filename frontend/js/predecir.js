@@ -36,9 +36,9 @@ function mostrarResultado(categoria) {
   const nodo = capas[2][categoria];
   nodo.classList.add('nodo-ganador');
 
-  const x = Number(nodo.getAttribute('cx')) + 28;
+  const x = redVertical.matches ? CENTRO_VERTICAL : Number(nodo.getAttribute('cx')) + 28;
   const texto = document.createElementNS(SVG_NS, 'text');
-  texto.setAttribute('y', nodo.getAttribute('cy'));
+  texto.setAttribute('y', redVertical.matches ? 475 : nodo.getAttribute('cy'));
   texto.classList.add('red-resultado');
 
   const titulo = document.createElementNS(SVG_NS, 'tspan');
@@ -102,8 +102,11 @@ btnPredecir.addEventListener('click', async () => {
 // Inicio
 if (datos.length) {
   animando = false;
-  crearRed(Math.min(Math.max(datos.length, 2), 8));
-  ajustarLienzo();
+  dibujarRed();
+  redVertical.addEventListener('change', () => {
+    quitarResultado();
+    dibujarRed();
+  });
   window.addEventListener('resize', ajustarLienzo);
   limpiarPizarra();
 } else {

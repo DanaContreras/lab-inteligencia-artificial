@@ -51,8 +51,8 @@ btnSiguiente.addEventListener('click', () => {
 });
 
 if (muestras.length) {
-  crearRed(Math.min(Math.max(datos.length, 2), 8));
-  ajustarLienzo();
+  dibujarRed();
+  redVertical.addEventListener('change', dibujarRed);
   window.addEventListener('resize', ajustarLienzo);
   iniciarCuadros();
   animar();

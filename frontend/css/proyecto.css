@@ -261,12 +261,6 @@ body[data-menu="abierto"] .topbar {
   height: 1.5rem;
 }
 
-@media (max-width: 480px) {
-  .paso-etiqueta {
-    font-size: 1.25rem;
-  }
-}
-
 /* Modal de nueva muestra */
 .modal {
   margin: auto;
@@ -526,6 +520,57 @@ button.opcion.herramienta-activa .icono {
 }
 
 @media (max-width: 600px) {
+    .contenido-proyecto {
+        padding-bottom: 4.75rem;
+    }
+
+    .pasos {
+        margin-top: 0.5rem;
+        padding-bottom: 2rem;
+    }
+
+    .paso-numero {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .categorias {
+        gap: 1rem;
+    }
+
+    .categoria-encabezado {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .categoria-eliminar {
+        font-size: 2rem;
+    }
+
+    .categoria-cuerpo {
+        gap: 0.5rem;
+        min-height: 0;
+        padding: 0.75rem;
+    }
+
+    .categoria-agregar,
+    .muestra {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .categoria-agregar {
+        font-size: 3rem;
+    }
+
+    .boton-agregar {
+        margin-top: 1rem;
+    }
+
+    .boton-siguiente {
+        width: 3rem;
+        height: 3rem;
+    }
+
     #modal-dibujo {
         width: 95%;
         max-height: 90vh;
@@ -537,7 +582,16 @@ button.opcion.herramienta-activa .icono {
 
     .editor-dibujo {
         grid-template-columns: minmax(0, 1fr);
-        gap: 20px;
+        gap: 12px;
+    }
+
+    .contenedor-herramientas .opcion-icono {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .contenedor-herramientas .opcion {
+        gap: 0.25rem;
     }
 
     #lienzo {

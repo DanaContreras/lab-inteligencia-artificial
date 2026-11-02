@@ -8,8 +8,15 @@ const ctx        = lienzo.getContext('2d');
 const SVG_NS     = 'http://www.w3.org/2000/svg';
 const N_ENTRADA  = 6;
 const N_OCULTA   = 5;
+const N_ENTRADA_VERTICAL = 4;
+const N_OCULTA_VERTICAL  = 3;
 const GRILLA     = 24;
 const LADO_MUESTREO = 160;
+const CENTRO_VERTICAL = 300;
+const VISTA_HORIZONTAL = red.getAttribute('viewBox');
+const VISTA_VERTICAL = '0 0 600 500';
+
+const redVertical = window.matchMedia('(max-width: 600px)');
 
 const datos = JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]');
 
@@ -21,37 +28,55 @@ const capas = [];
 const conexiones = [];
 
 function crearRed(nSalida) {
+  const vertical = redVertical.matches;
+
+  red.setAttribute('viewBox', vertical ? VISTA_VERTICAL : VISTA_HORIZONTAL);
+  red.replaceChildren();
+  capas.length = 0;
+  conexiones.length = 0;
+
   const columnas = [
-    { x: 90,  n: N_ENTRADA, nombre: 'Entrada' },
-    { x: 300, n: N_OCULTA,  nombre: 'Capa oculta' },
-    { x: 510, n: nSalida,   nombre: 'Salida' },
+    { pos: vertical ? 60 : 90,   n: vertical ? N_ENTRADA_VERTICAL : N_ENTRADA, nombre: 'Entrada' },
+    { pos: vertical ? 230 : 300, n: vertical ? N_OCULTA_VERTICAL : N_OCULTA,   nombre: 'Capa oculta' },
+    { pos: vertical ? 400 : 510, n: nSalida, nombre: 'Salida' },
   ];
 
-  const ys = columnas.map(({ n }) => {
-    const paso = Math.min(300 / n, 60);
-    const inicio = 185 - (paso * (n - 1)) / 2;
+  const centro  = vertical ? CENTRO_VERTICAL : 185;
+  const espacio = vertical ? 560 : 300;
+  const pasoMax = vertical ? 150 : 60;
+
+  const posiciones = columnas.map(({ n }) => {
+    const paso = Math.min(espacio / n, pasoMax);
+    const inicio = centro - (paso * (n - 1)) / 2;
     return Array.from({ length: n }, (_, i) => inicio + i * paso);
   });
 
+  const punto = (c, i) => (vertical
+    ? { x: posiciones[c][i], y: columnas[c].pos }
+    : { x: columnas[c].pos, y: posiciones[c][i] });
+
   for (let c = 0; c < columnas.length - 1; c++) {
-    conexiones.push(ys[c].map((y1) => ys[c + 1].map((y2) => {
+    conexiones.push(posiciones[c].map((_, i) => posiciones[c + 1].map((_, j) => {
+      const desde = punto(c, i);
+      const hasta = punto(c + 1, j);
       const linea = document.createElementNS(SVG_NS, 'line');
-      linea.setAttribute('x1', columnas[c].x);
-      linea.setAttribute('y1', y1);
-      linea.setAttribute('x2', columnas[c + 1].x);
-      linea.setAttribute('y2', y2);
+      linea.setAttribute('x1', desde.x);
+      linea.setAttribute('y1', desde.y);
+      linea.setAttribute('x2', hasta.x);
+      linea.setAttribute('y2', hasta.y);
       linea.classList.add('red-conexion');
       red.append(linea);
       return linea;
     })));
   }
 
-  columnas.forEach(({ x, nombre }, c) => {
-    const nodos = ys[c].map((y) => {
+  columnas.forEach(({ pos, nombre }, c) => {
+    const nodos = posiciones[c].map((_, i) => {
+      const { x, y } = punto(c, i);
       const nodo = document.createElementNS(SVG_NS, 'circle');
       nodo.setAttribute('cx', x);
       nodo.setAttribute('cy', y);
-      nodo.setAttribute('r', 16);
+      nodo.setAttribute('r', vertical ? 24 : 16);
       nodo.classList.add('nodo');
       red.append(nodo);
       return nodo;
@@ -59,12 +84,17 @@ function crearRed(nSalida) {
     capas.push(nodos);
 
     const texto = document.createElementNS(SVG_NS, 'text');
-    texto.setAttribute('x', x);
-    texto.setAttribute('y', 390);
+    texto.setAttribute('x', vertical ? CENTRO_VERTICAL : pos);
+    texto.setAttribute('y', vertical ? pos - 42 : 390);
     texto.classList.add('red-capa');
     texto.textContent = nombre;
     red.append(texto);
   });
+}
+
+function dibujarRed() {
+  crearRed(Math.min(Math.max(datos.length, 2), 8));
+  ajustarLienzo();
 }
 
 const pulsos = new WeakMap();
@@ -91,7 +121,7 @@ function encenderConexion(linea) {
 
 function propagar(entrada, categoria) {
   const oculta = Math.floor(Math.random() * capas[1].length);
-  encenderConexion(conexiones[0][entrada][oculta]);
+  encenderConexion(conexiones[0][entrada % capas[0].length][oculta]);
 
   setTimeout(() => {
     pulsar(capas[1][oculta]);

@@ -306,6 +306,18 @@ body[data-menu] .contenido {
   }
 }
 
+/* Móvil */
+@media (max-width: 600px) {
+  :root {
+    --texto-xs:      1.25rem;
+    --texto-sm:      1.375rem;
+    --texto:         1.5rem;
+    --texto-lg:      1.875rem;
+    --texto-xl:      2.25rem;
+    --margen-pagina: 1.25rem;
+  }
 
-
-
+  body {
+    line-height: 1.3;
+  }
+}
