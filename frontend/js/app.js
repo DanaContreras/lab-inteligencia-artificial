@@ -4,6 +4,7 @@ const sidebar    = document.getElementById('sidebar');
 const overlay    = document.getElementById('overlay');
 const menuToggle = document.getElementById('menu-toggle');
 const nivelInput = document.getElementById('nivel');
+const nuevo = document.getElementById('nuevo-proyecto');
 
 const nivelLabels = document.querySelectorAll('[data-nivel-label]');
 
@@ -71,3 +72,60 @@ document.addEventListener('keydown', (event) => {
 
   if (boton && !boton.disabled) boton.click();
 });
+
+
+
+ // Crear nuevo proyecto
+if (nuevo) {
+    nuevo.addEventListener("click", async () => {
+        const proyecto = await crearProyecto("Mi proyecto");
+
+        if (!proyecto) return;
+
+        window.location.href = "./proyecto.html";
+        
+    });
+}
+
+
+
+
+async function crearProyecto(nombre) {
+    try {
+
+
+        const respuesta = await fetch("/api/proyectos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ nombre })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(
+                resultado.error || "No se pudo crear el proyecto."
+            );
+        }
+
+        // Guardar el UID generado por el servidor.
+        sessionStorage.setItem(
+            "neurofai:proyectoId",
+            resultado.proyecto.id
+        );
+
+        sessionStorage.setItem(
+            "neurofai:proyectoNombre",
+            resultado.proyecto.nombre
+        );
+
+        return resultado.proyecto;
+
+    } catch (error) {
+        console.error("Error al crear el proyecto:", error);
+        alert(error.message || "No se pudo crear el proyecto.");
+        return null;
+    }
+}
