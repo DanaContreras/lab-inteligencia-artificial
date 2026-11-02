@@ -64,8 +64,15 @@ async function ejecutarEntrenamiento(){
   const animacion = animar();
 
   try {
+      
+      const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
+
+    if (!idProyecto) {
+        throw new Error("No se encontró el proyecto actual.");
+    }
+
         const respuesta = await fetch(
-            `/api/proyectos/${idProyecto}/entrenar`,
+            `/api/proyectos/${encodeURIComponent(idProyecto)}/entrenar`,
             {
                 method: 'POST',
                 headers: {
@@ -92,7 +99,7 @@ async function ejecutarEntrenamiento(){
         await animacion;
 
         console.error(error);
-        actualizarEstado('Error durante el entrenamiento');
+        //actualizarEstado('Error durante el entrenamiento');
     }
 }
 
@@ -107,7 +114,7 @@ async function terminarEntrenamiento() {
     estado.textContent = `¡Entrenamiento completo! Puedo predecir en ${segundos}…`;
     await esperar(1000);
   }
-  location.href = './predecir.html';
+  //location.href = './predecir.html';
 }
 
 btnSiguiente.addEventListener('click', () => {

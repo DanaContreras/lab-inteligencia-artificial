@@ -22,7 +22,8 @@ entrenamiento = tf.keras.utils.image_dataset_from_directory(
     shuffle=True, #Mezclas las imagenes
     seed=SEMILLA, #Semilla para aleatoriedad
     validation_split=0.2, #Porcentaje de imageness para validacion
-    subset="training"
+    subset="training",
+    batch_size=LOTE,
 )
 
 validacion = tf.keras.utils.image_dataset_from_directory(
@@ -33,7 +34,8 @@ validacion = tf.keras.utils.image_dataset_from_directory(
     shuffle=True,
     seed=SEMILLA,
     validation_split=0.2,
-    subset="validation"
+    subset="validation",
+    batch_size=LOTE,
 )
 
 #Clases del dataset
@@ -60,8 +62,8 @@ validacion = validacion.map(normalizar)
 modelo = tf.keras.Sequential([
     tf.keras.layers.Input(shape=(28,28,1)),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(20, activation='relu'),
-    tf.keras.layers.Dense(10, activation='relu'),
+    tf.keras.layers.Dense(50, activation='relu'),
+    tf.keras.layers.Dense(50, activation='relu'),
     tf.keras.layers.Dense(len(clases), activation='softmax')]
 )
 
@@ -73,15 +75,27 @@ modelo.compile(
 
 
 #Entrenamiento
-modelo.fit(
+historial = modelo.fit(
     entrenamiento,
-    epochs=10,
-    batch_size=LOTE,
+    epochs=30,
     validation_data=validacion,
 )
 
+print("Precisión entrenamiento:",
+      historial.history["accuracy"][-1])
+
+print("Precisión validación:",
+      historial.history["val_accuracy"][-1])
+
+print("Pérdida entrenamiento:",
+      historial.history["loss"][-1])
+
+print("Pérdida validación:",
+      historial.history["val_loss"][-1])
+
 #Guardar el modelo entrenado
 modelo.save(carpeta_modelo / "modelo.keras")
+
 
 print(json.dumps({
     "categorias": clases,
