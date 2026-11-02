@@ -142,6 +142,9 @@ function agregarMuestra(tarjeta, imagen) {
   miniatura.dataset.muestra = '';
 
   tarjeta.querySelector('[data-agregar-muestra]').before(miniatura);
+
+  eliminarMuestra(miniatura);
+
   actualizarSiguiente();
 }
 
@@ -201,10 +204,6 @@ function eliminarMuestra(miniatura) {
   contenedor.append(miniatura, boton);
 }
 
-document.querySelectorAll('.muestra').forEach(imagen => {
-  eliminarMuestra(imagen);
-});
-
 
 async function convertirImagenAPNG(img) {
   if (!img.complete || !img.naturalWidth) {
@@ -252,7 +251,7 @@ btnSiguiente.addEventListener("click", async () => {
 
     //Enviar al servidor y esperar la respuesta
     const respuesta = await fetch(
-      `/api/proyectos/${encodeURIComponent(idProyecto)}/entrenar`,
+      `/api/proyectos/${encodeURIComponent(idProyecto)}/dataset`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

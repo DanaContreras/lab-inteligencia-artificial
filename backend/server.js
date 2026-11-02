@@ -18,8 +18,7 @@ app.use(express.static(carpetaFrontend));
 app.use(express.json({ limit: "50mb" }));
 
 
-
-app.post("/api/proyectos/:id/entrenar", async (req, res) => {
+app.post("/api/proyectos/:id/dataset", async (req, res) => {
     try {
         const { id } = req.params;
         const { datos } = req.body;
@@ -37,7 +36,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         const carpetaProyecto = path.join(
             carpetaProyectos,
             id
-        );
+        ); 
 
         const rutaProyecto = path.join(
             carpetaProyecto,
@@ -109,6 +108,21 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
                 const nombreArchivo =
                     `muestra_${String(numero).padStart(4, "0")}.png`;
 
+
+                // Verificar que la imagen sea una Data URL PNG válida.
+                if (
+                    typeof imagen !== "string" ||
+                    !imagen.startsWith("data:image/png;base64,")
+                ) {
+                    throw new Error(
+                        `La muestra ${numero} de la categoría "${nombreCategoria}" no es una imagen PNG válida.`
+                    );
+                }
+
+                // Extraer los datos Base64 y convertirlos en un Buffer.
+                const base64 = imagen.split(",")[1];
+                const buffer = Buffer.from(base64, "base64");
+
                 await fs.writeFile(
                     path.join(carpetaCategoria, nombreArchivo),
                     buffer,
@@ -134,7 +148,55 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
             "utf8"
         );
 
-        // Ejecutar el entrenamiento Python.
+        
+
+    return res.status(200).json({
+            mensaje: "Dataset guardado correctamente.",
+            totalImagenes,
+            categorias: categoriasGuardadas
+        });
+
+    } catch (error) {
+        console.error("Error al guardar el dataset:", error);
+
+        return res.status(500).json({
+            error: error.message || "No se pudo guardar el dataset."
+        });
+    }
+}),
+
+
+app.post("/api/proyectos/:id/entrenar", async (req, res) => {
+    try{
+        const {id} = req.params;
+
+        const carpetaProyecto = path.join(
+            carpetaProyectos,
+            id
+        ); 
+
+        const rutaProyecto = path.join(
+            carpetaProyecto,
+            "proyecto.json"
+        );
+
+        let proyecto;
+
+        try {
+            proyecto = JSON.parse(
+                await fs.readFile(rutaProyecto, "utf8")
+            );
+        } catch {
+            return res.status(404).json({
+                error: "No se encontró el proyecto."
+            });
+        }
+
+        const carpetaDataset = path.join(
+            carpetaProyecto,
+            "dataset"
+        );
+
         const carpetaModelo = path.join(
             carpetaProyecto,
             "modelos"
@@ -143,6 +205,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         await fs.mkdir(carpetaModelo, {
             recursive: true
         });
+
 
         const scriptPython = path.join(
             __dirname,
@@ -189,9 +252,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         );
 
         return res.status(200).json({
-            mensaje: "Imágenes guardadas y entrenamiento finalizado.",
-            totalImagenes,
-            categorias: categoriasGuardadas,
+            mensaje: "Entrenamiento finalizado.",
             resultado: resultadoPython
         });
 

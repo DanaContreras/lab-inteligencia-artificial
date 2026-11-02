@@ -70,7 +70,18 @@ zonaArrastre.addEventListener("drop", evento => {
     zonaArrastre.classList.remove("arrastrando");
 
     if (evento.dataTransfer) {
-        procesarImagenes(evento.dataTransfer.files);
+        const nuevasImagenes = Array.from(evento.dataTransfer.files);
+        procesarImagenes(nuevasImagenes);
+
+        const cantidad = imagenesSeleccionadas.length;
+
+        if (cantidad === 0) {
+            cantidadImagenes.textContent = "No hay imágenes seleccionadas";
+        } else if (cantidad === 1) {
+            cantidadImagenes.textContent = "Se seleccionó 1 imagen";
+        } else {
+            cantidadImagenes.textContent = `Se seleccionaron ${cantidad} imágenes`;
+        }
     }
 });
 
