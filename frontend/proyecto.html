@@ -233,33 +233,34 @@
                 </span>
                 <span class="opcion-texto">Goma</span>
               </button>
+
+              <div class="contenedor-grosor">
+                    <i class="ti ti-line-dashed" style="font-size:16px; color:var(--color-text-secondary)" aria-hidden="true"></i>
+                    <input id="grosor" type="range" min="1" max="15" value="3"/>
+                    <span class="opcion-texto" id="label-grosor">Grosor</span>
+                </div>
             </div>
           </div>
 
-          <div class="grupo-colores">
-            <div class="contenedor-circulos">
-              <button class="circulo circulo-negro active" onclick="changeColor('#000000')"></button>
-              <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
-              <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
-              <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
-              <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
-              <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
-              <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
-              <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
-              <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
-            </div>
+          <div class="contenedor-circulos">
+            <button class="circulo circulo-negro" onclick="changeColor('#000000')"></button>
+            <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
+            <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
+            <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
+            <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
+            <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
+            <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
+            <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
+            <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
           </div>
-        </aside>                  
-      </div>
-
-      <div class="acciones-dibujo">
+        </aside>
+    </div>
+    <div class="acciones-dibujo">
         <button type="button" id="limpiar-dibujo" class="btn">Limpiar</button>
         <button type="button" id="guardar-dibujo" class="btn btn-guardar">
           Guardar dibujo
         </button>
       </div> 
-
-    </div>
   </dialog>
 
   <dialog id="modal-camara" class="modal" aria-labelledby="modal-titulo" >

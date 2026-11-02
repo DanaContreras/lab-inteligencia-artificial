@@ -1,5 +1,6 @@
 
 /*Dibujo */
+const rangeInput = document.getElementById("grosor");
 const ctx = canvas.getContext('2d');
 
 let drawColor = '#000000';
@@ -7,6 +8,8 @@ let lineWidth = 3;
 let erasing = false;
 let isDrawing = false;
 let ultimo = { x: 0, y: 0 };
+
+rangeInput.addEventListener("input",grosorLinea);
 
 function prepararLienzo() {
   const r = canvas.getBoundingClientRect();
@@ -79,6 +82,10 @@ function changeColor(color) {
   event.currentTarget.classList.add('active');
 }
 
+
+function grosorLinea() {
+  lineWidth = this.value;
+}
 
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 

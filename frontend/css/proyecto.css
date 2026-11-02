@@ -416,8 +416,7 @@ body[data-menu="abierto"] .topbar {
     display: grid;
     grid-template-columns: minmax(0, 500px) auto;
     gap: 24px;
-    align-items: start;
-    width: fit-content;
+    margin: 0 auto;
 }
 
 /* Lienzo */
@@ -466,11 +465,36 @@ body[data-menu="abierto"] .topbar {
     height: 6rem;
 }
 
+/* Slider de grosor */
+.contenedor-grosor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+#grosor {
+    width: 90px;
+    height: 15px;
+    opacity: 1;
+    cursor: pointer;
+    border-radius: 10px;
+    accent-color: var(--acento);
+    cursor: pointer;
+    margin: 0;
+    transition: background 0.2s ease;
+}
+
+#grosor:active {
+    accent-color: var(--acento-fuerte);
+}
+
+
 /* Herramienta seleccionada */
 button.opcion.herramienta-activa .icono {
   color: var(--acento);
 }
-
 
 
 /* El icono también toma el color del botón */
@@ -522,7 +546,10 @@ button.opcion.herramienta-activa .icono {
 .acciones-dibujo {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
     gap: 8px;
+    width: 100%;
 }
 
 @media (max-width: 600px) {
