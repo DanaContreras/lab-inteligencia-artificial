@@ -82,5 +82,29 @@
 @media (max-width: 600px) {
   .escenario-prediccion {
     grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .escenario-prediccion .escenario-dibujo {
+    max-width: 12.5rem;
+  }
+
+  .estado {
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+  }
+
+  .acciones-prediccion {
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .boton-accion {
+    padding: 0.25rem;
+  }
+
+  .red-resultado {
+    font-size: 36px;
+    text-anchor: middle;
   }
 }

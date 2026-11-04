@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyectos · NeuroFAI</title>
+  <link rel="stylesheet" href="./css/estilos.css">
+  <link rel="stylesheet" href="./css/proyectos.css">
+</head>
+
+<body>
+  <script src="./js/menu.js"></script>
+
+  <main id="content" class="contenido contenido-proyectos">
+    <header class="proyectos-encabezado">
+      <h2 class="proyectos-titulo">Proyectos</h2>
+
+      <div class="proyectos-acciones">
+        <button type="button" id="crear-proyecto" class="boton-proyecto boton-proyecto-principal">
+          + Crear proyecto
+        </button>
+
+        <details class="desplegable">
+          <summary class="boton-proyecto">Abrir</summary>
+          <div class="desplegable-menu">
+            <button type="button" id="abrir-equipo">Desde este equipo</button>
+            <button type="button" disabled title="Disponible próximamente">Desde Google Drive</button>
+          </div>
+        </details>
+
+        <input type="file" id="archivo-proyecto" accept=".zip" hidden>
+      </div>
+    </header>
+
+    <ul id="lista-proyectos" class="lista-proyectos"></ul>
+    <p id="proyectos-mensaje" class="proyectos-mensaje" role="status"></p>
+  </main>
+
+  <template id="tpl-proyecto">
+    <li class="proyecto-fila">
+      <button type="button" class="proyecto-abrir" data-abrir>
+        <svg class="icono-carpeta" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+        </svg>
+        <span data-nombre></span>
+      </button>
+
+      <button type="button" class="boton-proyecto" data-renombrar>Renombrar</button>
+
+      <details class="desplegable">
+        <summary class="boton-proyecto">Guardar</summary>
+        <div class="desplegable-menu">
+          <button type="button" data-guardar-equipo>En este equipo</button>
+          <button type="button" disabled title="Disponible próximamente">En Google Drive</button>
+        </div>
+      </details>
+    </li>
+  </template>
+
+  <dialog id="modal-nombre" class="modal-nombre">
+    <form id="form-nombre" method="dialog">
+      <h2 id="modal-nombre-titulo"></h2>
+      <input id="campo-nombre" type="text" maxlength="50" required
+             aria-labelledby="modal-nombre-titulo">
+      <div class="modal-nombre-acciones">
+        <button type="button" id="cancelar-nombre" class="boton-proyecto">Cancelar</button>
+        <button type="submit" class="boton-proyecto boton-proyecto-principal">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="./js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="./js/proyectos.js"></script>
+</body>
+</html>

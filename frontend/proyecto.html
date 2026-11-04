@@ -42,45 +42,16 @@
       <path d="m6 6 12 12" />
     </symbol>
 
+    <symbol id="subir_imagen" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
+      <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"/>
+      <path d="m14 19.5 3-3 3 3"/>
+      <path d="M17 22v-5.5"/>
+      <circle cx="9" cy="9" r="2"/>
+    </symbol>
   </svg>
 
-  <button id="menu-toggle"
-          type="button"
-          class="boton-menu"
-          aria-label="Abrir menú"
-          aria-expanded="false"
-          aria-controls="sidebar">
-    <span aria-hidden="true" class="boton-menu-linea"></span>
-    <span aria-hidden="true" class="boton-menu-linea"></span>
-    <span aria-hidden="true" class="boton-menu-linea"></span>
-  </button>
-
-  <div id="overlay" class="fondo-oscuro"></div>
-
-  <aside id="sidebar" class="panel" data-open="false">
-    <h1 class="panel-marca">NeuroFAI</h1>
-
-    <div class="nivel">
-      <label class="interruptor">
-        <input type="checkbox"
-               id="nivel"
-               class="interruptor-input"
-               aria-label="Activar nivel avanzado">
-        <span aria-hidden="true" class="interruptor-pista"></span>
-        <span aria-hidden="true" class="interruptor-perilla"></span>
-      </label>
-      <p class="nivel-texto" aria-live="polite">
-        <span data-nivel-label>Nivel básico</span>
-      </p>
-    </div>
-
-    <nav class="panel-nav">
-      <a href="./proyecto.html" class="enlace-menu">Nuevo proyecto</a>
-      <button type="button" class="enlace-menu">Tutorial</button>
-    </nav>
-
-    <button type="button" class="enlace-menu panel-pie">Acerca de nosotros</button>
-  </aside>
+  <script src="./js/menu.js"></script>
 
   <main id="content" class="contenido contenido-proyecto">
 
@@ -155,9 +126,17 @@
         </span>
         <span class="opcion-texto">Foto</span>
       </button>
+
+      <button type="button" class="opcion" data-tipo="cargar-foto" id="cargar_imagen">
+        <span class="opcion-icono" aria-hidden="true">
+          <svg><use href="#subir_imagen" /></svg>
+        </span>
+        <span class="opcion-texto">Cargar imágenes</span>
+      </button>
     </div>
   </dialog>
 
+  
 
   <dialog id="modal-dibujo" class="modal" aria-labelledby="modal-titulo" >
     
@@ -197,33 +176,34 @@
                 </span>
                 <span class="opcion-texto">Goma</span>
               </button>
+
+              <div class="contenedor-grosor">
+                    <i class="ti ti-line-dashed" style="font-size:16px; color:var(--color-text-secondary)" aria-hidden="true"></i>
+                    <input id="grosor" type="range" min="1" max="15" value="3"/>
+                    <span class="opcion-texto" id="label-grosor">Grosor</span>
+                </div>
             </div>
           </div>
 
-          <div class="grupo-colores">
-            <div class="contenedor-circulos">
-              <button class="circulo circulo-negro active" onclick="changeColor('#000000')"></button>
-              <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
-              <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
-              <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
-              <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
-              <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
-              <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
-              <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
-              <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
-            </div>
+          <div class="contenedor-circulos">
+            <button class="circulo circulo-negro" onclick="changeColor('#000000')"></button>
+            <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
+            <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
+            <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
+            <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
+            <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
+            <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
+            <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
+            <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
           </div>
-        </aside>                  
-      </div>
-
-      <div class="acciones-dibujo">
-        <button type="button" id="limpiar-dibujo">Limpiar</button>
-        <button type="button" id="guardar-dibujo" class="btn-guardar">
+        </aside>
+    </div>
+    <div class="acciones-dibujo">
+        <button type="button" id="limpiar-dibujo" class="btn">Limpiar</button>
+        <button type="button" id="guardar-dibujo" class="btn btn-guardar">
           Guardar dibujo
         </button>
       </div> 
-
-    </div>
   </dialog>
 
   <dialog id="modal-camara" class="modal" aria-labelledby="modal-titulo" >
@@ -243,9 +223,69 @@
       <video id="video" autoplay playsinline></video>
       <canvas id="canvas" class="oculto"></canvas>
       <img id="foto" class="oculto" alt="Foto capturada">
-      <button id="startbutton">Tomar foto</button>
+      <button id="startbutton" class="btn">Tomar foto</button>
     </div>
   </dialog>
+
+  
+
+
+
+  <dialog id="modal-subir-imagenes" class="modal">
+    <div class="modal-panel modal-subida-panel">
+
+      <header class="modal-encabezado">
+        <h2>Agregar imágenes</h2>
+        <button type="button" class="cerrar-modal"
+                onclick="document.getElementById('modal-subir-imagenes').close()"
+                aria-label="Cerrar">
+            <span class="" aria-hidden="true">
+                <svg class="icono"><use href="#cerrar"></use></svg>
+            </span>
+        </button>
+      </header>
+
+      <div id="drop-zone" class="zona-arrastre" role="button" tabindex="0"
+          aria-label="Arrastra imágenes aquí">
+
+        <svg class="icono" aria-hidden="true">
+          <use href="#subir_imagen"></use>
+        </svg>
+
+        <p><strong>Arrastra tus imágenes aquí</strong></p>
+
+      </div>
+
+      <input
+        type="file"
+        id="fImg"
+        accept="image/*"
+        multiple
+        hidden
+      />
+
+      <p id="cantidad-imagenes">No hay imágenes seleccionadas</p>
+
+      <div class="origenes-imagen">
+        <button type="button" id="elegir-dispositivo" class="btn">
+          Mi dispositivo
+        </button>
+
+        <button type="button" id="elegir-drive" class="btn">
+          Google Drive
+        </button>
+      </div>
+
+      <footer class="acciones-subida">
+        <button type="button" id="agregar-imagenes" class="btn" disabled>
+          Agregar imágenes
+        </button>
+      </footer>
+
+    </div>
+  </dialog>
+
+
 
  
  
@@ -282,5 +322,7 @@
   <script src="./js/app.js"></script>
   <script src="./js/proyecto.js"></script>
   <script src="./js/canva.js"></script>
+  <script src="./js/imagenes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </body>
 </html>

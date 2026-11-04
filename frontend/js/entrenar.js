@@ -20,16 +20,87 @@ async function mostrarDibujo({ src, nombre }) {
   await esperar(300);
 }
 
-async function animar() {
-  for (const muestra of muestras) {
+// async function animar() {
+//   for (const muestra of muestras) {
+//     await mostrarDibujo(muestra);
+//     await esperar(700);
+//     dibujo.classList.add('fragmentado');
+//     await fragmentar(dibujo, muestra.categoria);
+//     await esperar(800);
+//   }
+
+//   terminarEntrenamiento();
+// }
+
+let entrenando = false;
+
+async function animar(){
+  let contador = 0;
+
+  while(entrenando || contador < 5 ){
+
+    numero = Math.floor(Math.random() * muestras.length);
+
+    const muestra = muestras[numero];
+
     await mostrarDibujo(muestra);
     await esperar(700);
+
     dibujo.classList.add('fragmentado');
+
     await fragmentar(dibujo, muestra.categoria);
     await esperar(800);
+
+    //indice = (indice + 1) % muestras.length;
+    contador++;
   }
 
   terminarEntrenamiento();
+}
+
+async function ejecutarEntrenamiento(){
+  entrenando = true;
+
+  const animacion = animar();
+
+  try {
+      
+      const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
+
+    if (!idProyecto) {
+        throw new Error("No se encontró el proyecto actual.");
+    }
+
+        const respuesta = await fetch(
+            `/api/proyectos/${encodeURIComponent(idProyecto)}/entrenar`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ datos })
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(resultado.error);
+        }
+
+        entrenando = false;
+
+        await animacion;
+
+        terminarEntrenamiento();
+
+    } catch (error) {
+        entrenando = false;
+        await animacion;
+
+        console.error(error);
+        //actualizarEstado('Error durante el entrenamiento');
+    }
 }
 
 const ESPERA_PREDECIR = 3;
@@ -43,7 +114,7 @@ async function terminarEntrenamiento() {
     estado.textContent = `¡Entrenamiento completo! Puedo predecir en ${segundos}…`;
     await esperar(1000);
   }
-  location.href = './predecir.html';
+  //location.href = './predecir.html';
 }
 
 btnSiguiente.addEventListener('click', () => {
@@ -51,11 +122,12 @@ btnSiguiente.addEventListener('click', () => {
 });
 
 if (muestras.length) {
-  crearRed(Math.min(Math.max(datos.length, 2), 8));
-  ajustarLienzo();
+  dibujarRed();
+  redVertical.addEventListener('change', dibujarRed);
   window.addEventListener('resize', ajustarLienzo);
   iniciarCuadros();
-  animar();
+  //animar();
+  ejecutarEntrenamiento();
 } else {
   escenario.hidden = true;
   document.getElementById('estado').hidden = true;

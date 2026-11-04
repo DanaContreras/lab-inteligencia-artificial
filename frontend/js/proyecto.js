@@ -6,6 +6,7 @@ const btnAgregar     = document.getElementById('agregar-categoria');
 const btnSiguiente   = document.getElementById('siguiente-paso');
 
 const MIN_CATEGORIAS = 2;
+const MIN_MUESTRAS = 3;
 let contador = 0;
 
 
@@ -85,6 +86,8 @@ const tituloDibujo = document.getElementById('titulo-dibujo');
 const modalFoto = document.getElementById('modal-camara');
 const tituloFoto = document.getElementById('titulo-foto');
 
+const modalSubida = document.getElementById("modal-subir-imagenes");
+
 // Categoría desde la que se abrió el modal: es a la que va a ir el dibujo
 // o la foto que se elija.
 let categoriaActiva = null;
@@ -93,7 +96,7 @@ let categoriaDestino = null;
 
 function abrirModal(tarjeta) {
   categoriaActiva = tarjeta;
-  console.log('Abriendo modal para:', categoriaActiva);
+  //console.log('Abriendo modal para:', categoriaActiva);
   modal.showModal();
 }
 
@@ -120,6 +123,8 @@ for (const boton of modal.querySelectorAll('[data-tipo]')) {
       tituloFoto.textContent = `${nombreCategoria}`;
       modalFoto.showModal();
       iniciarCamara();
+    } else{
+      modalSubida.showModal();
     }
     modal.close();
   });
@@ -138,38 +143,177 @@ function agregarMuestra(tarjeta, imagen) {
   miniatura.dataset.muestra = '';
 
   tarjeta.querySelector('[data-agregar-muestra]').before(miniatura);
+
+  eliminarMuestra(miniatura);
+
   actualizarSiguiente();
 }
 
 function actualizarSiguiente() {
-  const listo = [...lista.children].every((t) => t.querySelector('[data-muestra]'));
+  const listo = [...lista.children].every(
+    (t) => t.querySelectorAll('[data-muestra]').length >= MIN_MUESTRAS
+  );
   btnSiguiente.disabled = !listo;
-  btnSiguiente.title = listo ? 'Entrenar' : 'Agrega al menos un dato en cada categoría';
+  btnSiguiente.title = listo ? 'Entrenar' : `Agrega al menos ${MIN_MUESTRAS} imágenes en cada categoría`;
 }
 
 
 // Paso 2
-btnSiguiente.addEventListener('click', () => {
-  const datos = [...lista.children].map((tarjeta) => ({
-    nombre: tarjeta.querySelector('[data-nombre]').value.trim(),
-    muestras: [...tarjeta.querySelectorAll('[data-muestra]')].map((img) => img.src),
-  }));
+// btnSiguiente.addEventListener('click', () => {
+//   const datos = [...lista.children].map((tarjeta) => ({
+//     nombre: tarjeta.querySelector('[data-nombre]').value.trim(),
+//     muestras: [...tarjeta.querySelectorAll('[data-muestra]')].map((img) => img.src),
+//   }));
 
-  sessionStorage.setItem('neurofai:datos', JSON.stringify(datos));
-  location.href = './entrenar.html';
-});
+//   sessionStorage.setItem('neurofai:datos', JSON.stringify(datos));
+//   location.href = './entrenar.html';
+// });
 
 // Estado inicial
-const guardados = new URLSearchParams(location.search).has('continuar')
-  ? JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]')
-  : [];
+async function cargarEstadoInicial() {
+  const id = sessionStorage.getItem('neurofai:proyectoId');
 
-if (guardados.length) {
-  for (const { nombre, muestras } of guardados) {
-    const tarjeta = crearCategoria(nombre);
-    muestras.forEach((imagen) => agregarMuestra(tarjeta, imagen));
+  if (!id) {
+    location.replace('./proyectos.html');
+    return;
   }
-} else {
-  crearCategoria();
-  crearCategoria();
+
+  let categorias = new URLSearchParams(location.search).has('continuar')
+    ? JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]')
+    : [];
+
+  if (!categorias.length) {
+    const respuesta = await fetch(`/api/proyectos/${encodeURIComponent(id)}`);
+
+    if (respuesta.status === 404) {
+      sessionStorage.removeItem('neurofai:proyectoId');
+      location.replace('./proyectos.html');
+      return;
+    }
+
+    if (respuesta.ok) {
+      categorias = (await respuesta.json()).datos;
+    } else {
+      alert('No se pudieron cargar las imágenes del proyecto.');
+    }
+  }
+
+  if (categorias.length) {
+    for (const { nombre, muestras } of categorias) {
+      const tarjeta = crearCategoria(nombre);
+      muestras.forEach((imagen) => agregarMuestra(tarjeta, imagen));
+    }
+  } else {
+    crearCategoria();
+    crearCategoria();
+  }
 }
+
+cargarEstadoInicial();
+
+
+//Eliminar muestra
+
+function eliminarMuestra(miniatura) {
+  const contenedor = document.createElement('div');
+  contenedor.className = 'muestra-contenedor';
+
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'eliminar-muestra';
+  boton.innerHTML = '&times;';
+  boton.title = 'Eliminar muestra';
+  boton.setAttribute('aria-label', 'Eliminar muestra');
+
+  boton.addEventListener('click', () => {
+    contenedor.remove();
+    actualizarSiguiente();
+  });
+
+  miniatura.before(contenedor);
+  contenedor.append(miniatura, boton);
+}
+
+
+async function convertirImagenAPNG(img) {
+  if (!img.complete || !img.naturalWidth) {
+    await new Promise((resolve, reject) => {
+      img.addEventListener("load", resolve, { once: true });
+      img.addEventListener(
+        "error",
+        () => reject(new Error("No se pudo cargar una imagen.")),
+        { once: true }
+      );
+    });
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+
+  canvas.getContext("2d").drawImage(img, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
+
+
+btnSiguiente.addEventListener("click", async () => {
+  btnSiguiente.disabled = true;
+
+  try {
+    const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
+    if (!idProyecto) throw new Error("No se encontró el proyecto actual.");
+
+    //Datos para el servidor (PNG convertidos)
+    const datos = [];
+
+    for (const tarjeta of lista.children) {
+      const nombre = tarjeta.querySelector("[data-nombre]").value.trim();
+      const imagenes = [...tarjeta.querySelectorAll("[data-muestra]")];
+
+      if (!nombre || imagenes.length === 0) {
+        throw new Error("Cada categoría debe tener nombre y muestras.");
+      }
+
+      const muestras = await Promise.all(imagenes.map(convertirImagenAPNG));
+      datos.push({ nombre, muestras });
+    }
+
+    //Enviar al servidor y esperar la respuesta
+    const respuesta = await fetch(
+      `/api/proyectos/${encodeURIComponent(idProyecto)}/dataset`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datos })
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(resultado.error || "Falló el entrenamiento.");
+    }
+
+    sessionStorage.setItem("neurofai:resultado", JSON.stringify(resultado));
+
+    //Datos para la animación 
+    const datosAnimacion = [...lista.children].map((tarjeta) => ({
+      nombre: tarjeta.querySelector("[data-nombre]").value.trim(),
+      muestras: [...tarjeta.querySelectorAll("[data-muestra]")].map((img) => img.src),
+    }));
+
+    try {
+      sessionStorage.setItem("neurofai:datos", JSON.stringify(datosAnimacion));
+    } catch (e) {
+      console.warn("No se pudo guardar neurofai:datos para la animación:", e);
+    }
+
+    location.href = "./entrenar.html";
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "No se pudo completar el entrenamiento.");
+    btnSiguiente.disabled = false;
+  }
+});

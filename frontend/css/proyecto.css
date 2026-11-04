@@ -261,12 +261,6 @@ body[data-menu="abierto"] .topbar {
   height: 1.5rem;
 }
 
-@media (max-width: 480px) {
-  .paso-etiqueta {
-    font-size: 1.25rem;
-  }
-}
-
 /* Modal de nueva muestra */
 .modal {
   margin: auto;
@@ -416,8 +410,7 @@ body[data-menu="abierto"] .topbar {
     display: grid;
     grid-template-columns: minmax(0, 500px) auto;
     gap: 24px;
-    align-items: start;
-    width: fit-content;
+    margin: 0 auto;
 }
 
 /* Lienzo */
@@ -466,11 +459,36 @@ body[data-menu="abierto"] .topbar {
     height: 6rem;
 }
 
+/* Slider de grosor */
+.contenedor-grosor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+#grosor {
+    width: 90px;
+    height: 15px;
+    opacity: 1;
+    cursor: pointer;
+    border-radius: 10px;
+    accent-color: var(--acento);
+    cursor: pointer;
+    margin: 0;
+    transition: background 0.2s ease;
+}
+
+#grosor:active {
+    accent-color: var(--acento-fuerte);
+}
+
+
 /* Herramienta seleccionada */
 button.opcion.herramienta-activa .icono {
   color: var(--acento);
 }
-
 
 
 /* El icono también toma el color del botón */
@@ -522,10 +540,64 @@ button.opcion.herramienta-activa .icono {
 .acciones-dibujo {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
     gap: 8px;
+    width: 100%;
 }
 
 @media (max-width: 600px) {
+    .contenido-proyecto {
+        padding-bottom: 4.75rem;
+    }
+
+    .pasos {
+        margin-top: 0.5rem;
+        padding-bottom: 2rem;
+    }
+
+    .paso-numero {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .categorias {
+        gap: 1rem;
+    }
+
+    .categoria-encabezado {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .categoria-eliminar {
+        font-size: 2rem;
+    }
+
+    .categoria-cuerpo {
+        gap: 0.5rem;
+        min-height: 0;
+        padding: 0.75rem;
+    }
+
+    .categoria-agregar,
+    .muestra {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .categoria-agregar {
+        font-size: 3rem;
+    }
+
+    .boton-agregar {
+        margin-top: 1rem;
+    }
+
+    .boton-siguiente {
+        width: 3rem;
+        height: 3rem;
+    }
+
     #modal-dibujo {
         width: 95%;
         max-height: 90vh;
@@ -537,7 +609,16 @@ button.opcion.herramienta-activa .icono {
 
     .editor-dibujo {
         grid-template-columns: minmax(0, 1fr);
-        gap: 20px;
+        gap: 12px;
+    }
+
+    .contenedor-herramientas .opcion-icono {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .contenedor-herramientas .opcion {
+        gap: 0.25rem;
     }
 
     #lienzo {
@@ -590,4 +671,131 @@ video {
 
 .oculto {
   display: none;
+}
+
+
+
+/*Subir imagenes*/
+
+.modal-subida-panel {
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+#drop-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  max-width: 100%;
+  height: 200px;
+  color: slategray;
+  padding: 28px 16px;
+  text-align: center;
+  align-items: center;
+
+
+  background-color: transparent;
+  border: var(--borde) dashed var(--gris-400);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+#drop-zone.arrastrando {
+  background-color:  var(--gris-100);
+  border-color: var(--acento);
+  color: var(--acento);
+}
+
+.zona-arrastre .icono {
+  width: 42px;
+  height: 42px;
+}
+
+.acciones-subida {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#agregar-imagenes:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+#file-input {
+  display: none;
+}
+
+.muestra-contenedor {
+  position: relative;
+  display: inline-block;
+}
+
+.muestra-contenedor .muestra {
+  display: block;
+}
+
+.eliminar-muestra {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+.muestra-contenedor:hover .eliminar-muestra,
+.muestra-contenedor:focus-within .eliminar-muestra {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (hover: none) {
+  .eliminar-muestra {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+
+/*------------------------------------------------------------*/
+
+
+/*BOTONES*/
+.btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: var(--texto);
+    font-weight: 500;
+    background: var(--gris-100);
+    color: #333;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--acento);
+    color: var(--blanco);
+}
+
+/* Botones deshabilitados */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
