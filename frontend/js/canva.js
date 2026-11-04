@@ -1,5 +1,6 @@
 
 /*Dibujo */
+const rangeInput = document.getElementById("grosor");
 const ctx = canvas.getContext('2d');
 
 let drawColor = '#000000';
@@ -7,6 +8,8 @@ let lineWidth = 3;
 let erasing = false;
 let isDrawing = false;
 let ultimo = { x: 0, y: 0 };
+
+rangeInput.addEventListener("input",grosorLinea);
 
 function prepararLienzo() {
   const r = canvas.getBoundingClientRect();
@@ -80,70 +83,74 @@ function changeColor(color) {
 }
 
 
+function grosorLinea() {
+  lineWidth = this.value;
+}
+
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
-document.getElementById('guardar-dibujo').addEventListener('click', () => {
-  if (categoriaDestino) {
-    console.log("Categoria Destino:", categoriaDestino)
-    agregarMuestra(categoriaDestino, miniaturaLienzo());
-    guardarDibujo(categoriaDestino);
-    limpiarLienzo();
-  }
-});
+// document.getElementById('guardar-dibujo').addEventListener('click', () => {
+//   if (categoriaDestino) {
+//     console.log("Categoria Destino:", categoriaDestino)
+//     agregarMuestra(categoriaDestino, miniaturaLienzo());
+//     guardarDibujo(categoriaDestino);
+//     limpiarLienzo();
+//   }
+// });
 
-function miniaturaLienzo(lado = 160) {
-  const copia = document.createElement('canvas');
-  copia.width = lado;
-  copia.height = lado;
-  copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
-  return copia.toDataURL('image/jpeg', 0.85);
-}
+// function miniaturaLienzo(lado = 160) {
+//   const copia = document.createElement('canvas');
+//   copia.width = lado;
+//   copia.height = lado;
+//   copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
+//   return copia.toDataURL('image/jpeg', 0.85);
+// }
 
-async function guardarDibujo(categoria){
-    const imagen = lienzo.toDataURL("image/png");
+// async function guardarDibujo(categoria){
+//     const imagen = lienzo.toDataURL("image/png");
 
-    console.log("Tarjeta activa:", categoriaActiva);
+//     console.log("Tarjeta activa:", categoriaActiva);
 
-    if (!categoriaActiva) {
-        console.error("No hay una categoría activa");
-        return;
-    }
+//     if (!categoriaActiva) {
+//         console.error("No hay una categoría activa");
+//         return;
+//     }
 
 
-    const campoNombre =  categoriaActiva.querySelector('[data-nombre]');
-    console.log("Categoría recibida:", campoNombre.value);
+//     const campoNombre =  categoriaActiva.querySelector('[data-nombre]');
+//     console.log("Categoría recibida:", campoNombre.value);
 
-    try {
-        const respuesta = await fetch(
-            "http://localhost:3000/guardar-dibujo",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    imagen: imagen,
-                    categoria: categoria
-                })
-            }
-        );
+//     try {
+//         const respuesta = await fetch(
+//             "http://localhost:3000/guardar-dibujo",
+//             {
+//                 method: "POST",
+//                 headers: {
+//                     "Content-Type": "application/json"
+//                 },
+//                 body: JSON.stringify({
+//                     imagen: imagen,
+//                     categoria: categoria
+//                 })
+//             }
+//         );
 
-        const resultado = await respuesta.json();
+//         const resultado = await respuesta.json();
 
-        if (!respuesta.ok) {
-            throw new Error(
-                resultado.error || "No se pudo guardar"
-            );
-        }
+//         if (!respuesta.ok) {
+//             throw new Error(
+//                 resultado.error || "No se pudo guardar"
+//             );
+//         }
 
-        console.log(resultado.mensaje);
-        alert("¡Dibujo guardado correctamente!");
+//         console.log(resultado.mensaje);
+//         alert("¡Dibujo guardado correctamente!");
 
-    } catch (error) {
-        console.error("Error:", error);
-        alert("No se pudo guardar el dibujo");
-    }
-}
+//     } catch (error) {
+//         console.error("Error:", error);
+//         alert("No se pudo guardar el dibujo");
+//     }
+// }
 
 
 /* FOTOS */

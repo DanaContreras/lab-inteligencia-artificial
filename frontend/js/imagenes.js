@@ -4,6 +4,7 @@ const zonaArrastre = document.getElementById("drop-zone");
 const botonAgregarImagenes = document.getElementById("agregar-imagenes");
 const botonCancelarSubida = document.getElementById("cancelar-subida");
 const botonCerrarSubida = document.getElementById("cerrar-subida");
+const cantidadImagenes = document.getElementById("cantidad-imagenes");
 
 let imagenesSeleccionadas = [];
 
@@ -23,14 +24,27 @@ function procesarImagenes(archivos) {
         ...imagenes
     ];
 
-    botonAgregarImagenes.disabled =
-        imagenesSeleccionadas.length === 0;
+    botonAgregarImagenes.disabled = imagenesSeleccionadas.length === 0;
 }
 
 // Selección con el explorador de archivos
 inputImagenes.addEventListener("change", () => {
-    procesarImagenes(inputImagenes.files);
+    const nuevasImagenes = Array.from(inputImagenes.files);
+
+    procesarImagenes(nuevasImagenes);
+
+    const cantidad = imagenesSeleccionadas.length;
+
+    if (cantidad === 0) {
+        cantidadImagenes.textContent = "No hay imágenes seleccionadas";
+    } else if (cantidad === 1) {
+        cantidadImagenes.textContent = "Se seleccionó 1 imagen";
+    } else {
+        cantidadImagenes.textContent = `Se seleccionaron ${cantidad} imágenes`;
+    }
+
     inputImagenes.value = "";
+    
 });
 
 // Permitir arrastrar imágenes
@@ -56,7 +70,18 @@ zonaArrastre.addEventListener("drop", evento => {
     zonaArrastre.classList.remove("arrastrando");
 
     if (evento.dataTransfer) {
-        procesarImagenes(evento.dataTransfer.files);
+        const nuevasImagenes = Array.from(evento.dataTransfer.files);
+        procesarImagenes(nuevasImagenes);
+
+        const cantidad = imagenesSeleccionadas.length;
+
+        if (cantidad === 0) {
+            cantidadImagenes.textContent = "No hay imágenes seleccionadas";
+        } else if (cantidad === 1) {
+            cantidadImagenes.textContent = "Se seleccionó 1 imagen";
+        } else {
+            cantidadImagenes.textContent = `Se seleccionaron ${cantidad} imágenes`;
+        }
     }
 });
 
@@ -86,6 +111,7 @@ botonAgregarImagenes.addEventListener("click", async () => {
         }
 
         imagenesSeleccionadas = [];
+        cantidadImagenes.textContent = "No hay imágenes seleccionadas";
         cerrarModalSubida();
     } catch (error) {
         console.error("Error al cargar imágenes:", error);

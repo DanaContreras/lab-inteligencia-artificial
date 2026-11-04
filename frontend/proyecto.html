@@ -176,33 +176,34 @@
                 </span>
                 <span class="opcion-texto">Goma</span>
               </button>
+
+              <div class="contenedor-grosor">
+                    <i class="ti ti-line-dashed" style="font-size:16px; color:var(--color-text-secondary)" aria-hidden="true"></i>
+                    <input id="grosor" type="range" min="1" max="15" value="3"/>
+                    <span class="opcion-texto" id="label-grosor">Grosor</span>
+                </div>
             </div>
           </div>
 
-          <div class="grupo-colores">
-            <div class="contenedor-circulos">
-              <button class="circulo circulo-negro active" onclick="changeColor('#000000')"></button>
-              <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
-              <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
-              <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
-              <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
-              <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
-              <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
-              <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
-              <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
-            </div>
+          <div class="contenedor-circulos">
+            <button class="circulo circulo-negro" onclick="changeColor('#000000')"></button>
+            <button class="circulo circulo-rojo" onclick="changeColor('#FF0000')"></button>
+            <button class="circulo circulo-azul" onclick="changeColor('#0B52D6')"></button>
+            <button class="circulo circulo-verde" onclick="changeColor('#21c640')"></button>
+            <button class="circulo circulo-amarillo" onclick="changeColor('#FFD133')"></button>
+            <button class="circulo circulo-violeta" onclick="changeColor('#9d23de')"></button>
+            <button class="circulo circulo-rosa" onclick="changeColor('#e773e0')"></button>
+            <button class="circulo circulo-marron" onclick="changeColor('#89602e')"></button>
+            <button class="circulo circulo-naranja" onclick="changeColor('#FD801A')"></button>
           </div>
-        </aside>                  
-      </div>
-
-      <div class="acciones-dibujo">
-        <button type="button" id="limpiar-dibujo">Limpiar</button>
-        <button type="button" id="guardar-dibujo" class="btn-guardar">
+        </aside>
+    </div>
+    <div class="acciones-dibujo">
+        <button type="button" id="limpiar-dibujo" class="btn">Limpiar</button>
+        <button type="button" id="guardar-dibujo" class="btn btn-guardar">
           Guardar dibujo
         </button>
       </div> 
-
-    </div>
   </dialog>
 
   <dialog id="modal-camara" class="modal" aria-labelledby="modal-titulo" >
@@ -222,7 +223,7 @@
       <video id="video" autoplay playsinline></video>
       <canvas id="canvas" class="oculto"></canvas>
       <img id="foto" class="oculto" alt="Foto capturada">
-      <button id="startbutton">Tomar foto</button>
+      <button id="startbutton" class="btn">Tomar foto</button>
     </div>
   </dialog>
 
@@ -235,26 +236,23 @@
 
       <header class="modal-encabezado">
         <h2>Agregar imágenes</h2>
-
-        <button
-          type="button"
-          class="cerrar-modal"
-          id="cerrar-subida"
-          aria-label="Cerrar"
-        >
-          &times;
+        <button type="button" class="cerrar-modal"
+                onclick="document.getElementById('modal-subir-imagenes').close()"
+                aria-label="Cerrar">
+            <span class="" aria-hidden="true">
+                <svg class="icono"><use href="#cerrar"></use></svg>
+            </span>
         </button>
       </header>
 
       <div id="drop-zone" class="zona-arrastre" role="button" tabindex="0"
-          aria-label="Arrastra imágenes aquí o pulsa para seleccionar archivos">
+          aria-label="Arrastra imágenes aquí">
 
         <svg class="icono" aria-hidden="true">
           <use href="#subir_imagen"></use>
         </svg>
 
         <p><strong>Arrastra tus imágenes aquí</strong></p>
-        <p>o haz clic para elegir archivos</p>
 
       </div>
 
@@ -266,22 +264,20 @@
         hidden
       />
 
+      <p id="cantidad-imagenes">No hay imágenes seleccionadas</p>
+
       <div class="origenes-imagen">
-        <button type="button" id="elegir-dispositivo">
+        <button type="button" id="elegir-dispositivo" class="btn">
           Mi dispositivo
         </button>
 
-        <button type="button" id="elegir-drive">
+        <button type="button" id="elegir-drive" class="btn">
           Google Drive
         </button>
       </div>
 
       <footer class="acciones-subida">
-        <button type="button" id="cancelar-subida">
-          Cancelar
-        </button>
-
-        <button type="button" id="agregar-imagenes" disabled>
+        <button type="button" id="agregar-imagenes" class="btn" disabled>
           Agregar imágenes
         </button>
       </footer>

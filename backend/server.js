@@ -18,8 +18,17 @@ app.use(express.static(carpetaFrontend));
 app.use(express.json({ limit: "50mb" }));
 
 
+function validarCategoria(categoria) {
+    return (
+        typeof categoria === "string" &&
+        categoria.trim().length > 0 &&
+        categoria.trim().length <= 50 &&
+        /^[\p{L}\p{N} _-]+$/u.test(categoria.trim())
+    );
+}
 
-app.post("/api/proyectos/:id/entrenar", async (req, res) => {
+
+app.post("/api/proyectos/:id/dataset", async (req, res) => {
     try {
         const { id } = req.params;
         const { datos } = req.body;
@@ -37,7 +46,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         const carpetaProyecto = path.join(
             carpetaProyectos,
             id
-        );
+        ); 
 
         const rutaProyecto = path.join(
             carpetaProyecto,
@@ -59,11 +68,6 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         const { categoriasGuardadas, totalImagenes } =
             await guardarDataset(carpetaProyecto, datos);
 
-        const carpetaDataset = path.join(
-            carpetaProyecto,
-            "dataset"
-        );
-
         // Actualizar los metadatos del proyecto.
         proyecto.categorias = categoriasGuardadas;
         proyecto.fechaModificacion = new Date().toISOString();
@@ -74,19 +78,84 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
             "utf8"
         );
 
-        // Ejecutar el entrenamiento Python.
+        
+
+    return res.status(200).json({
+            mensaje: "Dataset guardado correctamente.",
+            totalImagenes,
+            categorias: categoriasGuardadas
+        });
+
+    } catch (error) {
+        console.error("Error al guardar el dataset:", error);
+
+        return res.status(500).json({
+            error: error.message || "No se pudo guardar el dataset."
+        });
+    }
+}),
+
+
+app.post("/api/proyectos/:id/entrenar", async (req, res) => {
+    try{
+        const {id} = req.params;
+
+        //console.log("Dentro del endpoint de entrenamiento")
+
+        const carpetaProyecto = path.join(
+            carpetaProyectos,
+            id
+        ); 
+        //console.log("Carpeta del proyecto:", carpetaProyecto);
+
+        const rutaProyecto = path.join(
+            carpetaProyecto,
+            "proyecto.json"
+        );
+        //console.log("Ruta del proyecto:", rutaProyecto);
+
+        let proyecto;
+
+        try {
+            proyecto = JSON.parse(
+                await fs.readFile(rutaProyecto, "utf8")
+            );
+        } catch {
+            return res.status(404).json({
+                error: "No se encontró el proyecto."
+            });
+        }
+
+        //console.log("Proyecto cargado:", proyecto)
+
+        const carpetaDataset = path.join(
+            carpetaProyecto,
+            "dataset"
+        );
+        //console.log("Carpeta del dataset:", carpetaDataset);
+
         const carpetaModelo = path.join(
             carpetaProyecto,
             "modelos"
         );
+        //console.log("Carpeta del modelo:", carpetaModelo);
 
         await fs.mkdir(carpetaModelo, {
             recursive: true
         });
 
+        console.log("¿Existe la carpeta de modelos?:",
+            await fs.readdir(carpetaProyecto)
+        );
+
+        
+
+
+        console.log("Seccion del script de entrenamiento")
         const scriptPython = path.join(
             __dirname,
-            "/modelos/entrenar.py"
+            "modelos",
+            "entrenar.py"
         );
 
         const resultadoPython = await new Promise(
@@ -105,16 +174,27 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
                 let errores = "";
 
                 proceso.stdout.on("data", (dato) => {
-                    salida += dato.toString();
+                    const mensaje = dato.toString();
+
+                    salida += mensaje;
+
+                    console.log('[PYTHON]:', mensaje);
                 });
 
                 proceso.stderr.on("data", (dato) => {
-                    errores += dato.toString();
+                    const mensaje = dato.toString();
+
+                    errores += mensaje;
+
+                    console.error('[PYTHON ERROR]:', mensaje);
                 });
 
                 proceso.on("error", reject);
 
                 proceso.on("close", (codigo) => {
+                    console.log('Proceso finalizado. Código:', codigo);
+                    console.log('Salida completa:', salida);
+                    console.log('Errores:', errores);
                     if (codigo === 0) {
                         resolve(salida);
                     } else {
@@ -129,9 +209,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         );
 
         return res.status(200).json({
-            mensaje: "Imágenes guardadas y entrenamiento finalizado.",
-            totalImagenes,
-            categorias: categoriasGuardadas,
+            mensaje: "Entrenamiento finalizado.",
             resultado: resultadoPython
         });
 
@@ -143,15 +221,6 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
         });
     }
 });
-
-function validarCategoria(categoria) {
-    return (
-        typeof categoria === "string" &&
-        categoria.trim().length > 0 &&
-        categoria.trim().length <= 50 &&
-        /^[\p{L}\p{N} _-]+$/u.test(categoria.trim())
-    );
-}
 
 async function guardarDataset(carpetaProyecto, datos) {
     const carpetaDataset = path.join(
@@ -204,13 +273,16 @@ async function guardarDataset(carpetaProyecto, datos) {
         for (const imagen of categoria.muestras) {
             numero++;
 
-            const png = /^data:image\/png;base64,(.+)$/.exec(imagen);
-
-            if (!png) {
-                throw new Error("Muestra inválida: se esperaba una imagen PNG.");
+            if (
+                typeof imagen !== "string" ||
+                !imagen.startsWith("data:image/png;base64,")
+            ) {
+                throw new Error(
+                    `La muestra ${numero} de la categoría "${nombreCategoria}" no es una imagen PNG válida.`
+                );
             }
 
-            const buffer = Buffer.from(png[1], "base64");
+            const buffer = Buffer.from(imagen.split(",")[1], "base64");
 
             const nombreArchivo =
                 `muestra_${String(numero).padStart(4, "0")}.png`;
@@ -488,7 +560,150 @@ app.post("/api/proyectos", async (req, res) => {
     }
 });
 
+app.post('/api/proyectos/:id/predecir', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { imagen } = req.body;
 
+        console.log("Recibiendo imagen en el server ")
+
+        // Validar la imagen recibida.
+        if (
+            typeof imagen !== 'string' ||
+            !imagen.startsWith('data:image/png;base64,')
+        ) {
+            return res.status(400).json({
+                error: 'La imagen enviada no es válida'
+            });
+        }
+        console.log("Se valido la imagen")
+
+        //Obtener las rutas del proyecto.
+        const carpetaProyecto = path.join(__dirname, 'proyectos', id);
+        const carpetaModelo = path.join(carpetaProyecto, 'modelos');
+
+        console.log("carpeta del proyecto: ", carpetaProyecto)
+        console.log("carpeta del modelo: ", carpetaModelo)
+
+        const scriptPython = path.join(
+            __dirname,
+            'modelos',
+            'predecir.py'
+        );
+
+        console.log("ruta del script: ", scriptPython)
+
+        const archivoProyecto = path.join(
+            carpetaProyecto,
+            'proyecto.json'
+        );
+
+        console.log("ruta del archivo proyecto: ", archivoProyecto)
+
+        const contenido = await fs.readFile(archivoProyecto, 'utf8');
+        const proyecto = JSON.parse(contenido);
+
+        console.log("contenido: ", contenido)
+        console.log("proyecto: ", proyecto)
+
+        if (!proyecto.categorias || proyecto.categorias.length < 2) {
+            return res.status(400).json({
+                error: 'El proyecto no tiene suficientes categorías'
+            });
+        }
+
+        // Obtener la ruta del modelo entrenado.
+        const rutaModelo = path.join(carpetaModelo, 'modelo.keras');
+
+        console.log("ruta del modelo entrenado: ", rutaModelo)
+
+        await fs.access(rutaModelo);
+
+        
+        // Ejecutar el script de predicción
+        const proceso = spawn('python', [
+            scriptPython,
+            carpetaModelo
+        ]);
+
+        let salida = '';
+        let errores = '';
+
+        proceso.stdout.on('data', (datos) => {
+            salida += datos.toString();
+        });
+
+        proceso.stderr.on('data', (datos) => {
+            errores += datos.toString();
+        });
+
+        proceso.on('error', (error) => {
+            console.error('Error al ejecutar Python:', error);
+
+            if (!res.headersSent) {
+                res.status(500).json({
+                    error: 'No se pudo ejecutar el script de predicción'
+                });
+            }
+        });
+
+        proceso.on('close', (codigo) => {
+
+            // Evitar enviar otra respuesta si ocurrió un error anterior
+            if (res.headersSent) return;
+
+            if (codigo !== 0) {
+                console.error('Error de Python:', errores);
+
+                return res.status(500).json({
+                    error: 'Error al realizar la predicción',
+                    detalles: errores
+                });
+            }
+
+            try {
+                console.log('Salida de Python:', salida);
+
+                const resultado = JSON.parse(salida.trim());
+
+                console.log('Resultado de la predicción:', resultado);
+
+                return res.status(200).json({
+                    mensaje: 'Predicción realizada correctamente',
+                    resultado: resultado
+                });
+
+            } catch (error) {
+                console.error('Respuesta de Python inválida:', salida);
+                console.error('Error JSON:', error);
+
+                return res.status(500).json({
+                    error: 'No se pudo interpretar el resultado de la predicción'
+                });
+            }
+        });
+
+        // Enviar los datos a Python mediante stdin
+        proceso.stdin.end(JSON.stringify({
+            imagen,
+            categorias: proyecto.categorias
+        }));
+
+
+    } catch (error) {
+        console.error(error);
+
+        if (error.code === 'ENOENT') {
+            return res.status(404).json({
+                error: 'No se encontró el proyecto o el modelo entrenado'
+            });
+        }
+
+        res.status(500).json({
+            error: 'Error durante la predicción'
+        });
+    }
+});
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(carpetaFrontend, "index.html"));

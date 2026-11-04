@@ -143,6 +143,9 @@ function agregarMuestra(tarjeta, imagen) {
   miniatura.dataset.muestra = '';
 
   tarjeta.querySelector('[data-agregar-muestra]').before(miniatura);
+
+  eliminarMuestra(miniatura);
+
   actualizarSiguiente();
 }
 
@@ -231,10 +234,6 @@ function eliminarMuestra(miniatura) {
   contenedor.append(miniatura, boton);
 }
 
-document.querySelectorAll('.muestra').forEach(imagen => {
-  eliminarMuestra(imagen);
-});
-
 
 async function convertirImagenAPNG(img) {
   if (!img.complete || !img.naturalWidth) {
@@ -257,27 +256,6 @@ async function convertirImagenAPNG(img) {
 }
 
 
-
-
-
-async function convertirImagenAPNG(img) {
-  if (!img.complete || !img.naturalWidth) {
-    await new Promise((resolve, reject) => {
-      img.addEventListener("load", resolve, { once: true });
-      img.addEventListener(
-        "error",
-        () => reject(new Error("No se pudo cargar una imagen.")),
-        { once: true }
-      );
-    });
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  canvas.getContext("2d").drawImage(img, 0, 0);
-  return canvas.toDataURL("image/png");
-}
 
 btnSiguiente.addEventListener("click", async () => {
   btnSiguiente.disabled = true;
@@ -286,7 +264,7 @@ btnSiguiente.addEventListener("click", async () => {
     const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
     if (!idProyecto) throw new Error("No se encontró el proyecto actual.");
 
-    // 1Datos para el servidor (PNG convertidos)
+    //Datos para el servidor (PNG convertidos)
     const datos = [];
 
     for (const tarjeta of lista.children) {
@@ -303,7 +281,7 @@ btnSiguiente.addEventListener("click", async () => {
 
     //Enviar al servidor y esperar la respuesta
     const respuesta = await fetch(
-      `/api/proyectos/${encodeURIComponent(idProyecto)}/entrenar`,
+      `/api/proyectos/${encodeURIComponent(idProyecto)}/dataset`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
