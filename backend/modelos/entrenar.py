@@ -30,7 +30,7 @@ for categoria in categorias:
     )
     if cantidad < 3:
         raise ValueError(
-            f"La categoría '{categoria}' necesita al menos 5 imágenes."
+            f"La categoría '{categoria}' necesita al menos 3 imágenes."
         )
 
 entrenamiento = tf.keras.utils.image_dataset_from_directory(
@@ -84,7 +84,7 @@ modelo = tf.keras.Sequential([
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(20, activation='relu'),
     tf.keras.layers.Dense(10, activation='relu'),
-    tf.keras.layers.Dense(5, activation='softmax')]
+    tf.keras.layers.Dense(len(clases), activation='softmax')]
 )
 
 modelo.compile(

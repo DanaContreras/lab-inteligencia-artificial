@@ -6,6 +6,7 @@ const btnAgregar     = document.getElementById('agregar-categoria');
 const btnSiguiente   = document.getElementById('siguiente-paso');
 
 const MIN_CATEGORIAS = 2;
+const MIN_MUESTRAS = 3;
 let contador = 0;
 
 
@@ -146,9 +147,11 @@ function agregarMuestra(tarjeta, imagen) {
 }
 
 function actualizarSiguiente() {
-  const listo = [...lista.children].every((t) => t.querySelector('[data-muestra]'));
+  const listo = [...lista.children].every(
+    (t) => t.querySelectorAll('[data-muestra]').length >= MIN_MUESTRAS
+  );
   btnSiguiente.disabled = !listo;
-  btnSiguiente.title = listo ? 'Entrenar' : 'Agrega al menos un dato en cada categoría';
+  btnSiguiente.title = listo ? 'Entrenar' : `Agrega al menos ${MIN_MUESTRAS} imágenes en cada categoría`;
 }
 
 
@@ -164,19 +167,46 @@ function actualizarSiguiente() {
 // });
 
 // Estado inicial
-const guardados = new URLSearchParams(location.search).has('continuar')
-  ? JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]')
-  : [];
+async function cargarEstadoInicial() {
+  const id = sessionStorage.getItem('neurofai:proyectoId');
 
-if (guardados.length) {
-  for (const { nombre, muestras } of guardados) {
-    const tarjeta = crearCategoria(nombre);
-    muestras.forEach((imagen) => agregarMuestra(tarjeta, imagen));
+  if (!id) {
+    location.replace('./proyectos.html');
+    return;
   }
-} else {
-  crearCategoria();
-  crearCategoria();
+
+  let categorias = new URLSearchParams(location.search).has('continuar')
+    ? JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]')
+    : [];
+
+  if (!categorias.length) {
+    const respuesta = await fetch(`/api/proyectos/${encodeURIComponent(id)}`);
+
+    if (respuesta.status === 404) {
+      sessionStorage.removeItem('neurofai:proyectoId');
+      location.replace('./proyectos.html');
+      return;
+    }
+
+    if (respuesta.ok) {
+      categorias = (await respuesta.json()).datos;
+    } else {
+      alert('No se pudieron cargar las imágenes del proyecto.');
+    }
+  }
+
+  if (categorias.length) {
+    for (const { nombre, muestras } of categorias) {
+      const tarjeta = crearCategoria(nombre);
+      muestras.forEach((imagen) => agregarMuestra(tarjeta, imagen));
+    }
+  } else {
+    crearCategoria();
+    crearCategoria();
+  }
 }
+
+cargarEstadoInicial();
 
 
 //Eliminar muestra

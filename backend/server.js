@@ -56,73 +56,13 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
             });
         }
 
+        const { categoriasGuardadas, totalImagenes } =
+            await guardarDataset(carpetaProyecto, datos);
+
         const carpetaDataset = path.join(
             carpetaProyecto,
             "dataset"
         );
-
-        // Evitar que queden imágenes de una exportación anterior.
-        await fs.rm(carpetaDataset, {
-            recursive: true,
-            force: true
-        });
-
-        await fs.mkdir(carpetaDataset, {
-            recursive: true
-        });
-
-        const categoriasGuardadas = [];
-        const nombresUsados = new Set();
-        let totalImagenes = 0;
-
-        for (const categoria of datos) {
-            const nombre = categoria.nombre?.trim();
-
-            if (
-                !validarCategoria(nombre) ||
-                nombresUsados.has(nombre.normalize("NFC")) ||
-                !Array.isArray(categoria.muestras) ||
-                categoria.muestras.length === 0
-            ) {
-                throw new Error(
-                    "Categoría inválida, repetida o sin muestras."
-                );
-            }
-
-            nombresUsados.add(nombre.normalize("NFC"));
-
-            const nombreCategoria = nombre.normalize("NFC");
-            const carpetaCategoria = path.join(
-                carpetaDataset,
-                nombreCategoria
-            );
-
-            await fs.mkdir(carpetaCategoria, {
-                recursive: true
-            });
-
-            let numero = 0;
-
-            for (const imagen of categoria.muestras) {
-                numero++;
-
-                const nombreArchivo =
-                    `muestra_${String(numero).padStart(4, "0")}.png`;
-
-                await fs.writeFile(
-                    path.join(carpetaCategoria, nombreArchivo),
-                    buffer,
-                    { flag: "wx" }
-                );
-
-                totalImagenes++;
-            }
-
-            categoriasGuardadas.push({
-                nombre: nombreCategoria,
-                cantidad: numero
-            });
-        }
 
         // Actualizar los metadatos del proyecto.
         proyecto.categorias = categoriasGuardadas;
@@ -204,12 +144,6 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
     }
 });
 
-
-
-
-
-
-
 function validarCategoria(categoria) {
     return (
         typeof categoria === "string" &&
@@ -219,9 +153,283 @@ function validarCategoria(categoria) {
     );
 }
 
+async function guardarDataset(carpetaProyecto, datos) {
+    const carpetaDataset = path.join(
+        carpetaProyecto,
+        "dataset"
+    );
+
+    // Evitar que queden imágenes de una exportación anterior.
+    await fs.rm(carpetaDataset, {
+        recursive: true,
+        force: true
+    });
+
+    await fs.mkdir(carpetaDataset, {
+        recursive: true
+    });
+
+    const categoriasGuardadas = [];
+    const nombresUsados = new Set();
+    let totalImagenes = 0;
+
+    for (const categoria of datos) {
+        const nombre = categoria.nombre?.trim();
+
+        if (
+            !validarCategoria(nombre) ||
+            nombresUsados.has(nombre.normalize("NFC")) ||
+            !Array.isArray(categoria.muestras) ||
+            categoria.muestras.length === 0
+        ) {
+            throw new Error(
+                "Categoría inválida, repetida o sin muestras."
+            );
+        }
+
+        nombresUsados.add(nombre.normalize("NFC"));
+
+        const nombreCategoria = nombre.normalize("NFC");
+        const carpetaCategoria = path.join(
+            carpetaDataset,
+            nombreCategoria
+        );
+
+        await fs.mkdir(carpetaCategoria, {
+            recursive: true
+        });
+
+        let numero = 0;
+
+        for (const imagen of categoria.muestras) {
+            numero++;
+
+            const png = /^data:image\/png;base64,(.+)$/.exec(imagen);
+
+            if (!png) {
+                throw new Error("Muestra inválida: se esperaba una imagen PNG.");
+            }
+
+            const buffer = Buffer.from(png[1], "base64");
+
+            const nombreArchivo =
+                `muestra_${String(numero).padStart(4, "0")}.png`;
+
+            await fs.writeFile(
+                path.join(carpetaCategoria, nombreArchivo),
+                buffer,
+                { flag: "wx" }
+            );
+
+            totalImagenes++;
+        }
+
+        categoriasGuardadas.push({
+            nombre: nombreCategoria,
+            cantidad: numero
+        });
+    }
+
+    return { categoriasGuardadas, totalImagenes };
+}
+
+function validarNombreProyecto(nombre) {
+    return (
+        typeof nombre === "string" &&
+        nombre.trim().length > 0 &&
+        nombre.trim().length <= 50
+    );
+}
+
+async function leerProyecto(id) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+
+    const carpeta = path.join(carpetaProyectos, id);
+    const ruta = path.join(carpeta, "proyecto.json");
+
+    try {
+        const proyecto = JSON.parse(await fs.readFile(ruta, "utf8"));
+        return { proyecto, carpeta, ruta };
+    } catch {
+        return null;
+    }
+}
+
+app.get("/api/proyectos", async (req, res) => {
+    try {
+        const entradas = await fs.readdir(carpetaProyectos, {
+            withFileTypes: true
+        }).catch((error) => {
+            if (error.code === "ENOENT") return [];
+            throw error;
+        });
+
+        const leidos = await Promise.all(
+            entradas
+                .filter((entrada) => entrada.isDirectory())
+                .map((entrada) => leerProyecto(entrada.name))
+        );
+
+        const proyectos = leidos
+            .filter(Boolean)
+            .map((leido) => leido.proyecto)
+            .sort((a, b) =>
+                b.fechaModificacion.localeCompare(a.fechaModificacion)
+            );
+
+        return res.json({ proyectos });
+
+    } catch (error) {
+        console.error("Error al listar los proyectos:", error);
+
+        return res.status(500).json({
+            error: "No se pudieron cargar los proyectos."
+        });
+    }
+});
+
+app.get("/api/proyectos/:id", async (req, res) => {
+    try {
+        const leido = await leerProyecto(req.params.id);
+
+        if (!leido) {
+            return res.status(404).json({
+                error: "No se encontró el proyecto."
+            });
+        }
+
+        const datos = [];
+
+        for (const { nombre } of leido.proyecto.categorias) {
+            const carpetaCategoria = path.join(
+                leido.carpeta,
+                "dataset",
+                nombre
+            );
+
+            const archivos = (await fs.readdir(carpetaCategoria))
+                .filter((archivo) => archivo.endsWith(".png"))
+                .sort();
+
+            const muestras = await Promise.all(
+                archivos.map(async (archivo) => {
+                    const contenido = await fs.readFile(
+                        path.join(carpetaCategoria, archivo)
+                    );
+
+                    return `data:image/png;base64,${contenido.toString("base64")}`;
+                })
+            );
+
+            datos.push({ nombre, muestras });
+        }
+
+        return res.json({ proyecto: leido.proyecto, datos });
+
+    } catch (error) {
+        console.error("Error al abrir el proyecto:", error);
+
+        return res.status(500).json({
+            error: "No se pudo abrir el proyecto."
+        });
+    }
+});
+
+app.patch("/api/proyectos/:id", async (req, res) => {
+    try {
+        const { nombre } = req.body;
+
+        if (!validarNombreProyecto(nombre)) {
+            return res.status(400).json({
+                error: "El nombre debe tener entre 1 y 50 caracteres."
+            });
+        }
+
+        const leido = await leerProyecto(req.params.id);
+
+        if (!leido) {
+            return res.status(404).json({
+                error: "No se encontró el proyecto."
+            });
+        }
+
+        leido.proyecto.nombre = nombre.trim();
+        leido.proyecto.fechaModificacion = new Date().toISOString();
+
+        await fs.writeFile(
+            leido.ruta,
+            JSON.stringify(leido.proyecto, null, 2),
+            "utf8"
+        );
+
+        return res.json({ proyecto: leido.proyecto });
+
+    } catch (error) {
+        console.error("Error al renombrar el proyecto:", error);
+
+        return res.status(500).json({
+            error: "No se pudo renombrar el proyecto."
+        });
+    }
+});
+
+app.post("/api/proyectos/importar", async (req, res) => {
+    const { nombre, datos = [] } = req.body;
+
+    if (!validarNombreProyecto(nombre) || !Array.isArray(datos)) {
+        return res.status(400).json({
+            error: "El archivo no contiene un proyecto válido."
+        });
+    }
+
+    const id = crypto.randomUUID();
+    const carpetaProyecto = path.join(carpetaProyectos, id);
+
+    try {
+        await fs.mkdir(carpetaProyecto, { recursive: true });
+
+        const { categoriasGuardadas } =
+            await guardarDataset(carpetaProyecto, datos);
+
+        const fechaActual = new Date().toISOString();
+
+        const proyecto = {
+            version: 1,
+            id,
+            nombre: nombre.trim(),
+            fechaCreacion: fechaActual,
+            fechaModificacion: fechaActual,
+            categorias: categoriasGuardadas
+        };
+
+        await fs.writeFile(
+            path.join(carpetaProyecto, "proyecto.json"),
+            JSON.stringify(proyecto, null, 2),
+            "utf8"
+        );
+
+        return res.status(201).json({ proyecto });
+
+    } catch (error) {
+        console.error("Error al importar el proyecto:", error);
+
+        await fs.rm(carpetaProyecto, { recursive: true, force: true });
+
+        return res.status(400).json({
+            error: "El archivo no contiene un proyecto válido."
+        });
+    }
+});
+
 app.post("/api/proyectos", async (req, res) => {
     try {
         const { nombre } = req.body;
+
+        if (!validarNombreProyecto(nombre)) {
+            return res.status(400).json({
+                error: "El nombre debe tener entre 1 y 50 caracteres."
+            });
+        }
 
         const nombreProyecto = nombre.trim();
 
