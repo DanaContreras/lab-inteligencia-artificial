@@ -5,6 +5,12 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { spawn } = require("node:child_process");
 
+try {
+    process.loadEnvFile(path.join(__dirname, ".env"));
+} catch (error) {
+    if (error.code !== "ENOENT") throw error;
+}
+
 const app = express();
 const PUERTO = 3000;
 
@@ -313,6 +319,10 @@ function validarNombreProyecto(nombre) {
     );
 }
 
+function validarDriveId(driveId) {
+    return typeof driveId === "string" && /^[\w-]{10,200}$/.test(driveId);
+}
+
 async function leerProyecto(id) {
     if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
 
@@ -326,6 +336,22 @@ async function leerProyecto(id) {
         return null;
     }
 }
+
+app.get("/api/config/drive", (req, res) => {
+    const { GOOGLE_CLIENT_ID, GOOGLE_API_KEY, GOOGLE_APP_ID } = process.env;
+
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_API_KEY || !GOOGLE_APP_ID) {
+        return res.status(503).json({
+            error: "Google Drive todavía no está configurado."
+        });
+    }
+
+    return res.json({
+        clientId: GOOGLE_CLIENT_ID,
+        apiKey: GOOGLE_API_KEY,
+        appId: GOOGLE_APP_ID
+    });
+});
 
 app.get("/api/proyectos", async (req, res) => {
     try {
@@ -409,11 +435,17 @@ app.get("/api/proyectos/:id", async (req, res) => {
 
 app.patch("/api/proyectos/:id", async (req, res) => {
     try {
-        const { nombre } = req.body;
+        const { nombre, driveId } = req.body;
 
-        if (!validarNombreProyecto(nombre)) {
+        if (nombre !== undefined && !validarNombreProyecto(nombre)) {
             return res.status(400).json({
                 error: "El nombre debe tener entre 1 y 50 caracteres."
+            });
+        }
+
+        if (driveId !== undefined && !validarDriveId(driveId)) {
+            return res.status(400).json({
+                error: "El identificador de Google Drive no es válido."
             });
         }
 
@@ -425,8 +457,14 @@ app.patch("/api/proyectos/:id", async (req, res) => {
             });
         }
 
-        leido.proyecto.nombre = nombre.trim();
-        leido.proyecto.fechaModificacion = new Date().toISOString();
+        if (nombre !== undefined) {
+            leido.proyecto.nombre = nombre.trim();
+            leido.proyecto.fechaModificacion = new Date().toISOString();
+        }
+
+        if (driveId !== undefined) {
+            leido.proyecto.driveId = driveId;
+        }
 
         await fs.writeFile(
             leido.ruta,
@@ -445,10 +483,37 @@ app.patch("/api/proyectos/:id", async (req, res) => {
     }
 });
 
-app.post("/api/proyectos/importar", async (req, res) => {
-    const { nombre, datos = [] } = req.body;
+app.delete("/api/proyectos/:id", async (req, res) => {
+    try {
+        const leido = await leerProyecto(req.params.id);
 
-    if (!validarNombreProyecto(nombre) || !Array.isArray(datos)) {
+        if (!leido) {
+            return res.status(404).json({
+                error: "No se encontró el proyecto."
+            });
+        }
+
+        await fs.rm(leido.carpeta, { recursive: true, force: true });
+
+        return res.json({ ok: true });
+
+    } catch (error) {
+        console.error("Error al eliminar el proyecto:", error);
+
+        return res.status(500).json({
+            error: "No se pudo eliminar el proyecto."
+        });
+    }
+});
+
+app.post("/api/proyectos/importar", async (req, res) => {
+    const { nombre, datos = [], driveId } = req.body;
+
+    if (
+        !validarNombreProyecto(nombre) ||
+        !Array.isArray(datos) ||
+        (driveId !== undefined && !validarDriveId(driveId))
+    ) {
         return res.status(400).json({
             error: "El archivo no contiene un proyecto válido."
         });
@@ -471,7 +536,8 @@ app.post("/api/proyectos/importar", async (req, res) => {
             nombre: nombre.trim(),
             fechaCreacion: fechaActual,
             fechaModificacion: fechaActual,
-            categorias: categoriasGuardadas
+            categorias: categoriasGuardadas,
+            ...(driveId && { driveId })
         };
 
         await fs.writeFile(
