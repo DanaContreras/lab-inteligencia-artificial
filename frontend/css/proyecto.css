@@ -743,19 +743,23 @@ video {
 
 .eliminar-muestra {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 28px;
-  height: 28px;
+  top: 2px;
+  right: 10px;
+  padding: 0;
   border: none;
-  border-radius: 50%;
-  background: #dc3545;
-  color: white;
-  font-size: 22px;
+  background: none;
+  color: black;
+  font-size: 28px;
+  line-height: 1;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
   cursor: pointer;
 
   opacity: 0;
   visibility: hidden;
+}
+
+.eliminar-muestra:hover {
+  color: #dc3545;
 }
 
 .muestra-contenedor:hover .eliminar-muestra,

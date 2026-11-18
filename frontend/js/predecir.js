@@ -123,6 +123,15 @@ btnPredecir.addEventListener('click', async () => {
 
   const imagen = pizarra.toDataURL("image/png");
 
+  bloquear(true);
+  btnPredecir.textContent = 'Prediciendo…';
+  quitarResultado();
+
+  const puntos = document.createElement('span');
+  puntos.className = 'estado-puntos';
+  puntos.setAttribute('aria-hidden', 'true');
+  estado.replaceChildren('Prediciendo, espera un momento', puntos);
+
 try {
     console.log("Enviando imagen al servidor");
 
@@ -176,14 +185,6 @@ try {
 
   console.log("Se envió la imagen al servidor para prediccion.")
 
-  bloquear(true);
-  quitarResultado();
-
-  const puntos = document.createElement('span');
-  puntos.className = 'estado-puntos';
-  puntos.setAttribute('aria-hidden', 'true');
-  estado.replaceChildren('Pensando', puntos);
-
   const ganador = clasificar();
 
   pizarra.classList.add('fragmentado');
@@ -193,6 +194,7 @@ try {
 
   pizarra.classList.remove('fragmentado');
   mostrarResultado(ganador);
+  btnPredecir.textContent = 'Predecir';
   bloquear(false);
 });
 
