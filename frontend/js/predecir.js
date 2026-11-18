@@ -200,13 +200,18 @@ try {
 
 
 // Inicio
+function dibujarRedPrediccion() {
+  quitarResultado();
+  redAvanzada = document.body.dataset.nivel === 'avanzado';
+  dibujarRed();
+  if (redAvanzada) aplicarPesos();
+}
+
 if (datos.length) {
   animando = false;
-  dibujarRed();
-  redVertical.addEventListener('change', () => {
-    quitarResultado();
-    dibujarRed();
-  });
+  dibujarRedPrediccion();
+  redVertical.addEventListener('change', dibujarRedPrediccion);
+  document.addEventListener('nivel', dibujarRedPrediccion);
   window.addEventListener('resize', ajustarLienzo);
   limpiarPizarra();
 } else {

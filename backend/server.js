@@ -687,7 +687,7 @@ app.post('/api/proyectos/:id/predecir', async (req, res) => {
 
         
         // Ejecutar el script de predicción
-        const proceso = spawn('python', [
+        const proceso = spawn(process.env.PYTHON || 'python', [
             scriptPython,
             carpetaModelo
         ]);

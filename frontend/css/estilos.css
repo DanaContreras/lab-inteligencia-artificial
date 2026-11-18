@@ -105,6 +105,10 @@ svg[hidden] {
   display: none;
 }
 
+body:not([data-nivel="avanzado"]) .solo-avanzado {
+  display: none;
+}
+
 /* Botón hamburguesa */
 
 .boton-menu {

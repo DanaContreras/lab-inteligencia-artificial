@@ -107,11 +107,49 @@
   fill: var(--gris-500);
   stroke: var(--gris-500);
   /*stroke-width: 3;*/
-  transition: fill 200ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(var(--escala, 1));
+  transition: fill 200ms ease, stroke 200ms ease, transform 600ms ease;
 }
 
 .nodo-activo {
   fill: var(--acento);
+}
+
+.nodo-error {
+  fill: var(--peligro);
+  stroke: var(--peligro);
+}
+
+.nodo-aprendido {
+  fill: var(--acento);
+  stroke: var(--acento-fuerte);
+  stroke-width: 4;
+}
+
+.senal-error {
+  stroke: var(--peligro);
+  stroke-dashoffset: -1;
+}
+
+.red-puntos {
+  fill: var(--gris-500);
+}
+
+.red-etiqueta {
+  font-family: var(--fuente);
+  font-size: 20px;
+  fill: var(--gris-900);
+  text-anchor: end;
+  paint-order: stroke;
+  stroke: var(--gris-50);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.red-etiqueta-indice {
+  font-size: 14px;
 }
 
 .red-capa {
@@ -192,6 +230,16 @@
     justify-self: center;
     width: 100%;
     max-width: 9rem;
+  }
+
+  .red-etiqueta {
+    font-size: 28px;
+    text-anchor: middle;
+    stroke-width: 6px;
+  }
+
+  .red-etiqueta-indice {
+    font-size: 20px;
   }
 
   .red-capa {
