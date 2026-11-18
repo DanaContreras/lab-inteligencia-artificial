@@ -67,7 +67,8 @@ body[data-menu="abierto"] .topbar {
   transform: none;
 }
 
-.pasos > .paso:last-child .paso-etiqueta {
+.pasos > .paso:last-child .paso-etiqueta,
+body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
   left: auto;
   right: 0;
   transform: none;
@@ -559,6 +560,10 @@ button.opcion.herramienta-activa .icono {
     .paso-numero {
         width: 2.25rem;
         height: 2.25rem;
+    }
+
+    body[data-nivel="avanzado"] .paso:not(.paso-activo) .paso-etiqueta {
+        display: none;
     }
 
     .categorias {
