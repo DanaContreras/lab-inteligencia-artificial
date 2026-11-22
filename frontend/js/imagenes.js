@@ -132,5 +132,5 @@ function cerrarModalSubida() {
     zonaArrastre.classList.remove("arrastrando");
 }
 
-botonCancelarSubida.addEventListener("click", cerrarModalSubida);
-botonCerrarSubida.addEventListener("click", cerrarModalSubida);
+//botonCancelarSubida.addEventListener("click", cerrarModalSubida);
+//botonCerrarSubida.addEventListener("click", cerrarModalSubida);

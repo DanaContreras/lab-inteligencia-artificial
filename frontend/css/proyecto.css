@@ -337,6 +337,11 @@ body[data-menu="abierto"] .topbar {
   color: var(--blanco);
 }
 
+.opcion.seleccionado .opcion-icono {
+  background-color: var(--gris-900);
+  color: var(--blanco);
+}
+
 .opcion:focus-visible {
   outline: none;
 }

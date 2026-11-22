@@ -1,10 +1,10 @@
 
 /*Dibujo */
 const rangeInput = document.getElementById("grosor");
-const ctx = canvas.getContext('2d');
+const ctxt = canvas.getContext('2d');
 
 let drawColor = '#000000';
-let lineWidth = 3;
+let lineWidth = 7;
 let erasing = false;
 let isDrawing = false;
 let ultimo = { x: 0, y: 0 };
@@ -19,8 +19,8 @@ function prepararLienzo() {
 }
 
 function limpiarLienzo() {
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctxt.fillStyle = '#ffffff';
+  ctxt.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function posicion(event) {
@@ -32,13 +32,13 @@ function posicion(event) {
 }
 
 function trazar(desde, hasta) {
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = erasing ? '#ffffff' : drawColor;
-  ctx.lineWidth = erasing ? 20 : lineWidth;
-  ctx.moveTo(desde.x, desde.y);
-  ctx.lineTo(hasta.x, hasta.y);
-  ctx.stroke();
+  ctxt.beginPath();
+  ctxt.lineCap = 'round';
+  ctxt.strokeStyle = erasing ? '#ffffff' : drawColor;
+  ctxt.lineWidth = erasing ? 20 : lineWidth;
+  ctxt.moveTo(desde.x, desde.y);
+  ctxt.lineTo(hasta.x, hasta.y);
+  ctxt.stroke();
 }
 
 canvas.addEventListener('pointerdown', (event) => {
@@ -89,22 +89,27 @@ function grosorLinea() {
 
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
-// document.getElementById('guardar-dibujo').addEventListener('click', () => {
-//   if (categoriaDestino) {
-//     console.log("Categoria Destino:", categoriaDestino)
-//     agregarMuestra(categoriaDestino, miniaturaLienzo());
-//     guardarDibujo(categoriaDestino);
-//     limpiarLienzo();
-//   }
-// });
+document.getElementById('guardar-dibujo').addEventListener('click', () => {
+  if (categoriaDestino) {
+    console.log("Categoria Destino:", categoriaDestino)
+    agregarMuestra(categoriaDestino, miniaturaLienzo());
+    //guardarDibujo(categoriaDestino);
+    limpiarLienzo();
+  }else{
+    mostrarDibujoEnPizarra(miniaturaLienzo())
+    limpiarLienzo()
+  }
+});
 
-// function miniaturaLienzo(lado = 160) {
-//   const copia = document.createElement('canvas');
-//   copia.width = lado;
-//   copia.height = lado;
-//   copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
-//   return copia.toDataURL('image/jpeg', 0.85);
-// }
+function miniaturaLienzo(lado = 160) {
+  const copia = document.createElement('canvas');
+  copia.width = lado;
+  copia.height = lado;
+  copia.getContext('2d').drawImage(canvas,
+                        0, 0, canvas.width, canvas.height,
+                        0, 0, lado, lado);
+  return copia.toDataURL('image/jpeg', 0.85);
+}
 
 // async function guardarDibujo(categoria){
 //     const imagen = lienzo.toDataURL("image/png");
@@ -199,12 +204,12 @@ botonTomar.addEventListener('click', () => {
       return;
     }
 
-    const ctx = canvasFoto.getContext('2d');
+    const ctxt = canvasFoto.getContext('2d');
 
     canvasFoto.width = video.videoWidth;
     canvasFoto.height = video.videoHeight;
 
-    ctx.drawImage(
+    ctxt.drawImage(
       video,
       0,
       0,
@@ -213,7 +218,13 @@ botonTomar.addEventListener('click', () => {
     );
 
     const fotoCapturada = canvasFoto.toDataURL('image/jpeg', 0.9);
-    agregarMuestra(categoriaDestino, fotoCapturada);
+
+    if(categoriaDestino){
+      agregarMuestra(categoriaDestino, fotoCapturada);
+    }else{
+      mostrarDibujoEnPizarra(fotoCapturada)
+    }
+    
 
   } catch (error) {
     console.error('Error al agregar la muestra:', error);
@@ -235,7 +246,7 @@ function detenerCamara() {
 
 
 
-modal.addEventListener('close', detenerCamara);
+//modal.addEventListener('close', detenerCamara);
 
 
 

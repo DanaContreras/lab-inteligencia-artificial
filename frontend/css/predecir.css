@@ -3,6 +3,20 @@
   grid-template-columns: minmax(10rem, 18rem) minmax(0, calc(38rem * 720 / 370));
 }
 
+/*Selector de modo*/
+.selector {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+opcion-icono {
+    background-color: #4a90e2;
+    color: white;
+}
+
 /* Pizarra */
 .pizarra {
   display: block;
@@ -106,5 +120,11 @@
   .red-resultado {
     font-size: 36px;
     text-anchor: middle;
+  }
+
+  .selector-modo,
+  .acciones-prediccion,
+  #predecir {
+    max-width: 100%;
   }
 }
