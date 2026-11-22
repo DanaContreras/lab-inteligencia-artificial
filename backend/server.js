@@ -158,6 +158,7 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
             "entrenar.py"
         );
 
+        //Ejecutar el script de entrenamiento
         const resultadoPython = await new Promise(
             (resolve, reject) => {
                 const proceso = spawn(
@@ -360,6 +361,74 @@ app.get("/api/proyectos", async (req, res) => {
     }
 });
 
+app.post("/api/proyectos", async (req, res) => {
+    try {
+        const { nombre } = req.body;
+
+        if (!validarNombreProyecto(nombre)) {
+            return res.status(400).json({
+                error: "El nombre debe tener entre 1 y 50 caracteres."
+            });
+        }
+
+        const nombreProyecto = nombre.trim();
+
+        // Generar un identificador único.
+        const idProyecto = crypto.randomUUID();
+
+        // Crear la carpeta del proyecto.
+        const carpetaProyecto = path.join(
+            carpetaProyectos,
+            idProyecto
+        );
+
+        await fs.mkdir(carpetaProyecto, {
+            recursive: true
+        });
+
+        // Definir los datos iniciales del proyecto.
+        const fechaActual = new Date().toISOString();
+
+        const proyecto = {
+            version: 1,
+            id: idProyecto,
+            nombre: nombreProyecto,
+            fechaCreacion: fechaActual,
+            fechaModificacion: fechaActual,
+            categorias: []
+        };
+
+        // Guardar los datos en proyecto.json.
+        const rutaArchivo = path.join(
+            carpetaProyecto,
+            "proyecto.json"
+        );
+
+        await fs.writeFile(
+            rutaArchivo,
+            JSON.stringify(proyecto, null, 2),
+            {
+                encoding: "utf8",
+                flag: "wx"
+            }
+        );
+
+        // Informar que el proyecto se creó correctamente.
+        return res.status(201).json({
+            mensaje: "Proyecto creado correctamente.",
+            proyecto: proyecto
+        });
+
+    } catch (error) {
+        console.error("Error al crear el proyecto:", error);
+
+        return res.status(500).json({
+            error: "No se pudo crear el proyecto."
+        });
+    }
+});
+
+
 app.get("/api/proyectos/:id", async (req, res) => {
     try {
         const leido = await leerProyecto(req.params.id);
@@ -493,79 +562,20 @@ app.post("/api/proyectos/importar", async (req, res) => {
     }
 });
 
-app.post("/api/proyectos", async (req, res) => {
-    try {
-        const { nombre } = req.body;
-
-        if (!validarNombreProyecto(nombre)) {
-            return res.status(400).json({
-                error: "El nombre debe tener entre 1 y 50 caracteres."
-            });
-        }
-
-        const nombreProyecto = nombre.trim();
-
-        // Generar un identificador único.
-        const idProyecto = crypto.randomUUID();
-
-        // Crear la carpeta del proyecto.
-        const carpetaProyecto = path.join(
-            carpetaProyectos,
-            idProyecto
-        );
-
-        await fs.mkdir(carpetaProyecto, {
-            recursive: true
-        });
-
-        // Definir los datos iniciales del proyecto.
-        const fechaActual = new Date().toISOString();
-
-        const proyecto = {
-            version: 1,
-            id: idProyecto,
-            nombre: nombreProyecto,
-            fechaCreacion: fechaActual,
-            fechaModificacion: fechaActual,
-            categorias: []
-        };
-
-        // Guardar los datos en proyecto.json.
-        const rutaArchivo = path.join(
-            carpetaProyecto,
-            "proyecto.json"
-        );
-
-        await fs.writeFile(
-            rutaArchivo,
-            JSON.stringify(proyecto, null, 2),
-            {
-                encoding: "utf8",
-                flag: "wx"
-            }
-        );
-
-        // Informar que el proyecto se creó correctamente.
-        return res.status(201).json({
-            mensaje: "Proyecto creado correctamente.",
-            proyecto: proyecto
-        });
-
-    } catch (error) {
-        console.error("Error al crear el proyecto:", error);
-
-        return res.status(500).json({
-            error: "No se pudo crear el proyecto."
-        });
-    }
-});
 
 app.post('/api/proyectos/:id/predecir', async (req, res) => {
     try {
         const { id } = req.params;
         const { imagen } = req.body;
 
-        console.log("Recibiendo imagen en el server ")
+        console.log("DENTRO DEL ENDPOINT PARA PREDECIR");
+
+        // Validar el identificador del proyecto.
+        if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+            return res.status(400).json({
+                error: 'El identificador del proyecto no es válido'
+            });
+        }
 
         // Validar la imagen recibida.
         if (
@@ -576,14 +586,20 @@ app.post('/api/proyectos/:id/predecir', async (req, res) => {
                 error: 'La imagen enviada no es válida'
             });
         }
-        console.log("Se valido la imagen")
 
-        //Obtener las rutas del proyecto.
-        const carpetaProyecto = path.join(__dirname, 'proyectos', id);
-        const carpetaModelo = path.join(carpetaProyecto, 'modelos');
+        console.log("IMAGEN VALIDADA");
 
-        console.log("carpeta del proyecto: ", carpetaProyecto)
-        console.log("carpeta del modelo: ", carpetaModelo)
+        // Obtener las rutas del proyecto.
+        const carpetaProyecto = path.join(
+            __dirname,
+            'proyectos',
+            id
+        );
+
+        const carpetaModelo = path.join(
+            carpetaProyecto,
+            'modelos'
+        );
 
         const scriptPython = path.join(
             __dirname,
@@ -591,107 +607,147 @@ app.post('/api/proyectos/:id/predecir', async (req, res) => {
             'predecir.py'
         );
 
-        console.log("ruta del script: ", scriptPython)
-
-        const archivoProyecto = path.join(
-            carpetaProyecto,
-            'proyecto.json'
+        const archivoClases = path.join(
+            carpetaModelo,
+            'clases.json'
         );
 
-        console.log("ruta del archivo proyecto: ", archivoProyecto)
+        console.log("SE OBTUVIERON LAS RUTAS");
 
-        const contenido = await fs.readFile(archivoProyecto, 'utf8');
-        const proyecto = JSON.parse(contenido);
+        // Leer las categorías del proyecto.
+        const contenido = await fs.readFile(
+            archivoClases,
+            'utf8'
+        );
 
-        console.log("contenido: ", contenido)
-        console.log("proyecto: ", proyecto)
+        const clases = JSON.parse(contenido);
 
-        if (!proyecto.categorias || proyecto.categorias.length < 2) {
+        console.log("Clases obtenidas:", clases);
+
+        if (!Array.isArray(clases) || clases.length < 2) {
             return res.status(400).json({
                 error: 'El proyecto no tiene suficientes categorías'
             });
         }
 
         // Obtener la ruta del modelo entrenado.
-        const rutaModelo = path.join(carpetaModelo, 'modelo.keras');
-
-        console.log("ruta del modelo entrenado: ", rutaModelo)
+        const rutaModelo = path.join(
+            carpetaModelo,
+            'modelo.keras'
+        );
 
         await fs.access(rutaModelo);
 
-        
-        // Ejecutar el script de predicción
-        const proceso = spawn('python', [
-            scriptPython,
-            carpetaModelo
-        ]);
+        // Ejecutar el script de predicción.
+        const resultadoPython = await new Promise(
+            (resolve, reject) => {
 
-        let salida = '';
-        let errores = '';
+                const proceso = spawn(
+                    process.env.PYTHON || 'python',
+                    [
+                        scriptPython,
+                        carpetaModelo
+                    ],
+                    {
+                        cwd: __dirname
+                    }
+                );
 
-        proceso.stdout.on('data', (datos) => {
-            salida += datos.toString();
-        });
+                let salida = '';
+                let errores = '';
 
-        proceso.stderr.on('data', (datos) => {
-            errores += datos.toString();
-        });
+                // Capturar la salida estándar de Python.
+                proceso.stdout.on('data', (datos) => {
+                    const mensaje = datos.toString();
 
-        proceso.on('error', (error) => {
-            console.error('Error al ejecutar Python:', error);
+                    salida += mensaje;
 
-            if (!res.headersSent) {
-                res.status(500).json({
-                    error: 'No se pudo ejecutar el script de predicción'
+                    console.log('[PYTHON]:', mensaje);
+                });
+
+                // Capturar los errores de Python.
+                proceso.stderr.on('data', (datos) => {
+                    const mensaje = datos.toString();
+
+                    errores += mensaje;
+
+                    console.error('[PYTHON ERROR]:', mensaje);
+                });
+
+                // Manejar errores de ejecución.
+                proceso.on('error', (error) => {
+                    reject(error);
+                });
+
+                // Enviar la imagen y las categorías a Python
+                // ANTES de que el proceso finalice.
+                proceso.stdin.end(
+                    JSON.stringify({
+                        imagen,
+                        categorias: clases
+                    }),
+                    (error) => {
+                        if (error) {
+                            reject(error);
+                        }
+                    }
+                );
+
+                // Esperar a que Python termine.
+                proceso.on('close', (codigo) => {
+
+                    if (codigo !== 0) {
+                        return reject(
+                            new Error(
+                                `Python finalizó con código ${codigo}. ${errores}`
+                            )
+                        );
+                    }
+
+                    resolve(salida.trim());
                 });
             }
+        );
+
+        console.log(
+            'Salida de Python:',
+            resultadoPython
+        );
+
+        // Interpretar el JSON devuelto por Python.
+        let resultado;
+
+        try {
+            resultado = JSON.parse(resultadoPython);
+        } catch (error) {
+            console.error(
+                'Respuesta de Python inválida:',
+                resultadoPython
+            );
+
+            console.error('Error JSON:', error);
+
+            return res.status(500).json({
+                error: 'No se pudo interpretar el resultado de la predicción'
+            });
+        }
+
+        console.log(
+            'Resultado de la predicción:',
+            resultado
+        );
+
+        // Enviar el resultado al cliente.
+        return res.status(200).json({
+            mensaje: 'Predicción realizada correctamente',
+            resultado: resultado
         });
-
-        proceso.on('close', (codigo) => {
-
-            // Evitar enviar otra respuesta si ocurrió un error anterior
-            if (res.headersSent) return;
-
-            if (codigo !== 0) {
-                console.error('Error de Python:', errores);
-
-                return res.status(500).json({
-                    error: 'Error al realizar la predicción',
-                    detalles: errores
-                });
-            }
-
-            try {
-                console.log('Salida de Python:', salida);
-
-                const resultado = JSON.parse(salida.trim());
-
-                console.log('Resultado de la predicción:', resultado);
-
-                return res.status(200).json({
-                    mensaje: 'Predicción realizada correctamente',
-                    resultado: resultado
-                });
-
-            } catch (error) {
-                console.error('Respuesta de Python inválida:', salida);
-                console.error('Error JSON:', error);
-
-                return res.status(500).json({
-                    error: 'No se pudo interpretar el resultado de la predicción'
-                });
-            }
-        });
-
-        // Enviar los datos a Python mediante stdin
-        proceso.stdin.end(JSON.stringify({
-            imagen,
-            categorias: proyecto.categorias
-        }));
-
 
     } catch (error) {
-        console.error(error);
+        console.error(
+            'Error durante la predicción:',
+            error
+        );
 
         if (error.code === 'ENOENT') {
             return res.status(404).json({
@@ -699,11 +755,12 @@ app.post('/api/proyectos/:id/predecir', async (req, res) => {
             });
         }
 
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Error durante la predicción'
         });
     }
 });
+
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(carpetaFrontend, "index.html"));
