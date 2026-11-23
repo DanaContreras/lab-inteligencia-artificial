@@ -125,17 +125,22 @@ function recortar(texto, max = 12) {
   return texto.length > max ? `${texto.slice(0, max - 1)}…` : texto;
 }
 
+
+
+
 function mostrarResultado(respuesta) {
   const {prediccion, indice, categorias} = respuesta
   const nodoGanador = capas[2][indice]
   nodoGanador.classList.add('nodo-ganador');
 
+  const vertical = redVertical.matches;
+
   const textos = capas[2].map((nodo, i) => {
     const esGanador = i === indice;
 
-    const x = redVertical.matches ? CENTRO_VERTICAL : Number(nodo.getAttribute('cx')) + 28;
+    const x = vertical ? Number(nodo.getAttribute('cx')) : Number(nodo.getAttribute('cx')) + 28;
     const texto = document.createElementNS(SVG_NS, 'text');
-    texto.setAttribute('y', redVertical.matches ? 475 : nodo.getAttribute('cy'));
+    texto.setAttribute('y', vertical ? 475 : nodo.getAttribute('cy'));
     texto.classList.add('red-resultado');
 
     if (esGanador) {

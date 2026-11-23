@@ -111,53 +111,6 @@ function miniaturaLienzo(lado = 160) {
   return copia.toDataURL('image/jpeg', 0.85);
 }
 
-// async function guardarDibujo(categoria){
-//     const imagen = lienzo.toDataURL("image/png");
-
-//     console.log("Tarjeta activa:", categoriaActiva);
-
-//     if (!categoriaActiva) {
-//         console.error("No hay una categoría activa");
-//         return;
-//     }
-
-
-//     const campoNombre =  categoriaActiva.querySelector('[data-nombre]');
-//     console.log("Categoría recibida:", campoNombre.value);
-
-//     try {
-//         const respuesta = await fetch(
-//             "http://localhost:3000/guardar-dibujo",
-//             {
-//                 method: "POST",
-//                 headers: {
-//                     "Content-Type": "application/json"
-//                 },
-//                 body: JSON.stringify({
-//                     imagen: imagen,
-//                     categoria: categoria
-//                 })
-//             }
-//         );
-
-//         const resultado = await respuesta.json();
-
-//         if (!respuesta.ok) {
-//             throw new Error(
-//                 resultado.error || "No se pudo guardar"
-//             );
-//         }
-
-//         console.log(resultado.mensaje);
-//         alert("¡Dibujo guardado correctamente!");
-
-//     } catch (error) {
-//         console.error("Error:", error);
-//         alert("No se pudo guardar el dibujo");
-//     }
-// }
-
-
 /* FOTOS */
 const video =document.getElementById('video');
 const canvasFoto = document.getElementById('canvas');
@@ -169,68 +122,175 @@ const botonCerrar = document.getElementById('cerrar-modal');
 
 let stream = null;
 
+// function miniaturaVideo(video, lado = 160) {
+//   const copia = document.createElement('canvas');
+//   copia.width = lado;
+//   copia.height = lado;
 
+//   // Recorte cuadrado centrado, para no deformar la imagen
+//   const min = Math.min(video.videoWidth, video.videoHeight);
+//   const sx = (video.videoWidth - min) / 2;
+//   const sy = (video.videoHeight - min) / 2;
 
-async function iniciarCamara() {
-  try {
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
-      throw new Error(
-        'La cámara no está disponible. Usa HTTPS o localhost.'
-      );
-    }
+//   copia.getContext('2d').drawImage(video, sx, sy, min, min, 0, 0, lado, lado);
+//   return copia.toDataURL('image/jpeg', 0.85);
+// }
 
-    stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
-        audio: false
-    });
+function miniaturaVideo(fuente, lado = 160) {
+  // <video> expone videoWidth/videoHeight; ImageBitmap y canvas usan width/height
+  const ancho = fuente.videoWidth || fuente.width;
+  const alto = fuente.videoHeight || fuente.height;
 
-    video.srcObject = stream;
-    await video.play();
+  const copia = document.createElement('canvas');
+  copia.width = lado;
+  copia.height = lado;
 
-  } catch (error) {
-      console.error('Error de cámara:', error);
+  // Recorte cuadrado centrado, para no deformar la imagen
+  const min = Math.min(ancho, alto);
+  const sx = (ancho - min) / 2;
+  const sy = (alto - min) / 2;
 
-      alert('No se pudo acceder a la cámara: ' + error.name + ' - ' + error.message);
+  copia.getContext('2d').drawImage(fuente, sx, sy, min, min, 0, 0, lado, lado);
+  return copia.toDataURL('image/jpeg', 0.85);
+}
+
+function procesarFoto(fotoCapturada) {
+  if (categoriaDestino) {
+    agregarMuestra(categoriaDestino, fotoCapturada);
+  } else {
+    mostrarDibujoEnPizarra(fotoCapturada);
   }
 }
 
+const camaraDisponible =
+  window.isSecureContext && !!navigator.mediaDevices?.getUserMedia;
+
+const inputFotoNativa = document.getElementById('inputFotoNativa');
+
+async function iniciarCamara() {
+  // Sin HTTPS: no hay vista previa, se usará el input nativo al pulsar "tomar"
+  if (!camaraDisponible) {
+    video.hidden = true;   // oculta el visor vacío
+    return;
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' },
+      audio: false
+    });
+    video.hidden = false;
+    video.srcObject = stream;
+    await video.play();
+  } catch (error) {
+    console.error('Error de cámara:', error);
+    alert('No se pudo acceder a la cámara: ' + error.name + ' - ' + error.message);
+  }
+}
+
+// async function iniciarCamara() {
+//   try {
+//     if (!navigator.mediaDevices ||
+//         !navigator.mediaDevices.getUserMedia) {
+//       throw new Error(
+//         'La cámara no está disponible. Usa HTTPS o localhost.'
+//       );
+//     }
+
+//     stream = await navigator.mediaDevices.getUserMedia({
+//         video: { facingMode: 'user' },
+//         audio: false
+//     });
+
+//     video.srcObject = stream;
+//     await video.play();
+
+//   } catch (error) {
+//       console.error('Error de cámara:', error);
+
+//       alert('No se pudo acceder a la cámara: ' + error.name + ' - ' + error.message);
+//   }
+// }
+
 
 botonTomar.addEventListener('click', () => {
-  try {
+  // Respaldo: abrir la cámara nativa del celular
+  if (!camaraDisponible) {
+    inputFotoNativa.click();
+    return;
+  }
 
+  try {
     if (!video.videoWidth || !video.videoHeight) {
       alert('La cámara todavía no está lista.');
       return;
     }
 
     const ctxt = canvasFoto.getContext('2d');
-
     canvasFoto.width = video.videoWidth;
     canvasFoto.height = video.videoHeight;
+    ctxt.drawImage(video, 0, 0, canvasFoto.width, canvasFoto.height);
 
-    ctxt.drawImage(
-      video,
-      0,
-      0,
-      canvasFoto.width,
-      canvasFoto.height
-    );
-
-    const fotoCapturada = canvasFoto.toDataURL('image/jpeg', 0.9);
-
-    if(categoriaDestino){
-      agregarMuestra(categoriaDestino, fotoCapturada);
-    }else{
-      mostrarDibujoEnPizarra(fotoCapturada)
-    }
-    
-
+    procesarFoto(miniaturaVideo(video));
   } catch (error) {
     console.error('Error al agregar la muestra:', error);
     alert('Error al agregar la muestra: ' + error.message);
   }
 });
+
+inputFotoNativa.addEventListener('change', async () => {
+  const archivo = inputFotoNativa.files[0];
+  if (!archivo) return;
+
+  try {
+    // 'from-image' corrige la rotación EXIF de las fotos de celular
+    const bitmap = await createImageBitmap(archivo, { imageOrientation: 'from-image' });
+    procesarFoto(miniaturaVideo(bitmap));
+    bitmap.close();
+  } catch (error) {
+    console.error('Error al procesar la foto:', error);
+    alert('Error al procesar la foto: ' + error.message);
+  } finally {
+    inputFotoNativa.value = '';   // permite repetir la misma foto
+  }
+});
+
+// botonTomar.addEventListener('click', () => {
+//   try {
+
+//     if (!video.videoWidth || !video.videoHeight) {
+//       alert('La cámara todavía no está lista.');
+//       return;
+//     }
+
+//     const ctxt = canvasFoto.getContext('2d');
+
+//     canvasFoto.width = video.videoWidth;
+//     canvasFoto.height = video.videoHeight;
+
+//     ctxt.drawImage(
+//       video,
+//       0,
+//       0,
+//       canvasFoto.width,
+//       canvasFoto.height
+//     );
+
+//     //const fotoCapturada = canvasFoto.toDataURL('image/jpeg', 0.9);
+
+//     const fotoCapturada = miniaturaVideo(video)
+//     if(categoriaDestino){
+//       agregarMuestra(categoriaDestino, fotoCapturada);
+//     }else{
+//       mostrarDibujoEnPizarra(fotoCapturada)
+//     }
+    
+
+//   } catch (error) {
+//     console.error('Error al agregar la muestra:', error);
+//     alert('Error al agregar la muestra: ' + error.message);
+//   }
+// });
 
 
 function detenerCamara() {

@@ -121,6 +121,7 @@ class Modales extends HTMLElement{
                 <canvas id="canvas" class="oculto"></canvas>
                 <img id="foto" class="oculto" alt="Foto capturada">
                 <button id="startbutton" class="btn">Tomar foto</button>
+                <input type="file" id="inputFotoNativa" accept="image/*" capture="user" hidden>
                 </div>
             </dialog>
 

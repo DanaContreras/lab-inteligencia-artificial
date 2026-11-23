@@ -85,16 +85,42 @@ zonaArrastre.addEventListener("drop", evento => {
     }
 });
 
-// Convertir archivo a imagen que pueda utilizar agregarMuestra()
-function leerImagen(archivo) {
-    return new Promise((resolve, reject) => {
-        const lector = new FileReader();
+// // Convertir archivo a imagen que pueda utilizar agregarMuestra()
+// function leerImagen(archivo) {
+//     return new Promise((resolve, reject) => {
+//         const lector = new FileReader();
 
-        lector.onload = () => resolve(lector.result);
-        lector.onerror = () => reject(lector.error);
+//         lector.onload = () => resolve(lector.result);
+//         lector.onerror = () => reject(lector.error);
 
-        lector.readAsDataURL(archivo);
-    });
+//         lector.readAsDataURL(archivo);
+//     });
+// }
+
+
+
+async function leerImagen(archivo, lado = 160) {
+    // createImageBitmap respeta la orientación EXIF de las fotos de celular
+    const bitmap = await createImageBitmap(archivo, { imageOrientation: "from-image" });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = lado;
+    canvas.height = lado;
+    const ctx = canvas.getContext("2d");
+
+    // Fondo blanco: los PNG transparentes saldrían negros al convertir a JPEG
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, lado, lado);
+
+    // Recorte cuadrado centrado, para no deformar la imagen
+    const min = Math.min(bitmap.width, bitmap.height);
+    const sx = (bitmap.width - min) / 2;
+    const sy = (bitmap.height - min) / 2;
+
+    ctx.drawImage(bitmap, sx, sy, min, min, 0, 0, lado, lado);
+    bitmap.close();
+
+    return canvas.toDataURL("image/jpeg", 0.85);
 }
 
 // Agregar imágenes a la categoría
@@ -119,6 +145,7 @@ botonAgregarImagenes.addEventListener("click", async () => {
         botonAgregarImagenes.disabled = imagenesSeleccionadas.length === 0;
     }
 });
+
 
 
 function cerrarModalSubida() {
