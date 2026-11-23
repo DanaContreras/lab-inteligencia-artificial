@@ -19,10 +19,14 @@ function procesarImagenes(archivos) {
         archivo.type.startsWith("image/")
     );
 
-    imagenesSeleccionadas = [
-        ...imagenesSeleccionadas,
-        ...imagenes
-    ];
+    if(categoriaDestino){
+        imagenesSeleccionadas = [
+            ...imagenesSeleccionadas,
+            ...imagenes
+        ];
+    }else{
+        imagenesSeleccionadas = [imagenes[0]]
+    }
 
     botonAgregarImagenes.disabled = imagenesSeleccionadas.length === 0;
 }
@@ -127,18 +131,26 @@ async function leerImagen(archivo, lado = 160) {
 botonAgregarImagenes.addEventListener("click", async () => {
 
     if (imagenesSeleccionadas.length === 0) return;
+    console.log("Se seleccionaron imagenes: ", imagenesSeleccionadas.length)
 
     botonAgregarImagenes.disabled = true;
 
     try {
-        for (const archivo of imagenesSeleccionadas) {
-            const imagen = await leerImagen(archivo);
-            agregarMuestra(categoriaDestino, imagen);
+        console.log("CARGANDO DATOS PARA ENTRENAR")
+        if(categoriaDestino){
+            for (const archivo of imagenesSeleccionadas) {
+                const imagen = await leerImagen(archivo);
+                agregarMuestra(categoriaDestino, imagen);
+            }
+        }else{
+            const imagen = await leerImagen(imagenesSeleccionadas[0]);
+            await mostrarDibujoEnPizarra(imagen);
         }
-
+        
         imagenesSeleccionadas = [];
         cantidadImagenes.textContent = "No hay imágenes seleccionadas";
         cerrarModalSubida();
+
     } catch (error) {
         console.error("Error al cargar imágenes:", error);
         alert("Ocurrió un error al cargar las imágenes.");
