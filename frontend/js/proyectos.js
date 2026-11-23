@@ -28,6 +28,7 @@ async function intentar(accion) {
     await accion();
   } catch (error) {
     console.error(error);
+    if (mensaje.textContent.endsWith('…')) mensaje.textContent = '';
     alert(error.message);
   }
 }
@@ -86,6 +87,20 @@ function crearFila(proyecto) {
     intentar(() => guardarEnEquipo(proyecto));
   });
 
+  fila.querySelector('[data-guardar-drive]').addEventListener('click', (event) => {
+    event.target.closest('details').open = false;
+    intentar(() => guardarEnDrive(proyecto));
+  });
+
+  fila.querySelector('[data-eliminar]').addEventListener('click', () => {
+    if (!confirm(`¿Eliminar el proyecto "${proyecto.nombre}"? Esta acción no se puede deshacer.`)) return;
+
+    intentar(async () => {
+      await pedirJSON(`/api/proyectos/${proyecto.id}`, { method: 'DELETE' });
+      await cargarProyectos();
+    });
+  });
+
   return fila;
 }
 
@@ -97,7 +112,7 @@ async function cargarProyectos() {
 }
 
 
-async function guardarEnEquipo({ id }) {
+async function generarZip(id) {
   const { proyecto, datos } = await pedirJSON(`/api/proyectos/${id}`);
 
   const zip = new JSZip();
@@ -110,14 +125,59 @@ async function guardarEnEquipo({ id }) {
     });
   }
 
+  return { proyecto, blob: await zip.generateAsync({ type: 'blob' }) };
+}
+
+async function guardarEnEquipo({ id }) {
+  const { proyecto, blob } = await generarZip(id);
+
   const enlace = document.createElement('a');
-  enlace.href = URL.createObjectURL(await zip.generateAsync({ type: 'blob' }));
+  enlace.href = URL.createObjectURL(blob);
   enlace.download = `${proyecto.nombre}.zip`;
   enlace.click();
   URL.revokeObjectURL(enlace.href);
 }
 
-async function abrirDesdeEquipo(archivo) {
+async function guardarEnDrive({ id }) {
+  await conectarDrive();
+
+  const { proyecto, blob } = await generarZip(id);
+  const nombreArchivo = `${proyecto.nombre}.zip`;
+
+  if (proyecto.driveId && await existeEnDrive(proyecto.driveId)) {
+    mensaje.textContent = 'Guardando en Google Drive…';
+    await actualizarZipEnDrive(proyecto.driveId, blob, nombreArchivo);
+    mensaje.textContent = `"${proyecto.nombre}" se actualizó en Google Drive.`;
+    return;
+  }
+
+  const carpeta = await elegirCarpetaDrive();
+
+  if (!carpeta) return;
+
+  mensaje.textContent = 'Guardando en Google Drive…';
+
+  const driveId = await crearZipEnDrive(carpeta.id, blob, nombreArchivo);
+
+  await pedirJSON(`/api/proyectos/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ driveId }),
+  });
+
+  await cargarProyectos();
+  mensaje.textContent = `"${proyecto.nombre}" se guardó en Google Drive, en la carpeta "${carpeta.name}".`;
+}
+
+async function abrirDesdeDrive() {
+  const archivo = await elegirZipDeDrive();
+
+  if (!archivo) return;
+
+  mensaje.textContent = 'Descargando de Google Drive…';
+  await importarZip(await descargarDeDrive(archivo.id), archivo.id);
+}
+
+async function importarZip(archivo, driveId) {
   const zip = await JSZip.loadAsync(archivo).catch(() => {
     throw new Error('El archivo no es un .zip válido.');
   });
@@ -143,7 +203,7 @@ async function abrirDesdeEquipo(archivo) {
 
   await pedirJSON('/api/proyectos/importar', {
     method: 'POST',
-    body: JSON.stringify({ nombre, datos }),
+    body: JSON.stringify({ nombre, datos, driveId }),
   });
 
   await cargarProyectos();
@@ -169,7 +229,12 @@ entradaArchivo.addEventListener('change', () => {
   const [archivo] = entradaArchivo.files;
   entradaArchivo.value = '';
 
-  if (archivo) intentar(() => abrirDesdeEquipo(archivo));
+  if (archivo) intentar(() => importarZip(archivo));
+});
+
+document.getElementById('abrir-drive').addEventListener('click', (event) => {
+  event.target.closest('details').open = false;
+  intentar(abrirDesdeDrive);
 });
 
 document.addEventListener('click', (event) => {

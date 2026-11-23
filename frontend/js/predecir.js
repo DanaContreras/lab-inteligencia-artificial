@@ -68,7 +68,16 @@ btnLimpiar.addEventListener('click', limpiarPizarra);
 
 
 async function clasificar(imagen) {
-  try {
+    bloquear(true);
+  btnPredecir.textContent = 'Prediciendo…';
+  quitarResultado();
+
+  const puntos = document.createElement('span');
+  puntos.className = 'estado-puntos';
+  puntos.setAttribute('aria-hidden', 'true');
+  estado.replaceChildren('Prediciendo, espera un momento', puntos);
+
+try {
       console.log("Enviando imagen al servidor");
   
       const idProyecto = sessionStorage.getItem("neurofai:proyectoId");
@@ -204,6 +213,7 @@ btnPredecir.addEventListener('click', async () => {
   console.log("Se envió la imagen al servidor para prediccion.")
 
   bloquear(true);
+  btnPredecir.textContent = "Prediciendo..."
   quitarResultado();
 
   const puntos = document.createElement('span');
@@ -234,18 +244,24 @@ btnPredecir.addEventListener('click', async () => {
 
   pizarra.classList.remove('fragmentado');
   mostrarResultado(resultado);
+  btnPredecir.textContent = 'Predecir';
   bloquear(false);
 });
 
 
 // Inicio
+function dibujarRedPrediccion() {
+  quitarResultado();
+  redAvanzada = document.body.dataset.nivel === 'avanzado';
+  dibujarRed();
+  if (redAvanzada) aplicarPesos();
+}
+
 if (datos.length) {
   animando = false;
-  dibujarRed();
-  redVertical.addEventListener('change', () => {
-    quitarResultado();
-    dibujarRed();
-  });
+  dibujarRedPrediccion();
+  redVertical.addEventListener('change', dibujarRedPrediccion);
+  document.addEventListener('nivel', dibujarRedPrediccion);
   window.addEventListener('resize', ajustarLienzo);
   limpiarPizarra();
 } else {

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparar · NeuroFAI</title>
+  <link rel="stylesheet" href="./css/estilos.css">
+  <link rel="stylesheet" href="./css/proyecto.css">
+  <link rel="stylesheet" href="./css/entrenar.css">
+  <link rel="stylesheet" href="./css/comparar.css">
+</head>
+
+<body>
+
+  <!-- Iconos de Lucide -->
+  <svg hidden aria-hidden="true">
+    <symbol id="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </symbol>
+    <symbol id="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 15-6-6-6 6" />
+    </symbol>
+  </svg>
+
+  <script src="./js/menu.js"></script>
+
+  <main id="content" class="contenido contenido-proyecto contenido-comparar">
+
+    <header class="topbar">
+      <h1 class="topbar-marca">NeuroFAI</h1>
+      <p class="topbar-nivel" aria-live="polite">
+        <span data-nivel-label>Nivel básico</span>
+      </p>
+    </header>
+
+    <nav aria-label="Progreso del proyecto">
+      <ol class="pasos">
+
+        <li class="paso paso-completo">
+          <span class="paso-numero">1</span>
+          <span class="paso-etiqueta">Agregar datos</span>
+        </li>
+
+        <li aria-hidden="true" class="pasos-conector pasos-conector-completo"></li>
+
+        <li class="paso paso-completo">
+          <span class="paso-numero">2</span>
+          <span class="paso-etiqueta">Entrenar</span>
+        </li>
+
+        <li aria-hidden="true" class="pasos-conector pasos-conector-completo"></li>
+
+        <li class="paso paso-completo">
+          <span class="paso-numero">3</span>
+          <span class="paso-etiqueta">Predecir</span>
+        </li>
+
+        <li aria-hidden="true" class="pasos-conector pasos-conector-completo"></li>
+
+        <li class="paso paso-activo" aria-current="step">
+          <span class="paso-numero">4</span>
+          <span class="paso-etiqueta">Comparar</span>
+        </li>
+      </ol>
+    </nav>
+
+    <p id="solo-basico" class="sin-datos" hidden>
+      La comparación de modelos está disponible en el nivel avanzado.
+      Actívalo desde el menú.
+    </p>
+
+    <div id="comparacion" class="comparacion">
+
+      <div class="columna">
+        <section class="tarjeta-comparar plegable plegable-abierto" data-plegable="metodos">
+          <h2 class="comparar-titulo">
+            <button type="button" class="plegable-encabezado" id="metodos-titulo"
+                    aria-expanded="true" aria-controls="metodos-cuerpo">
+              Métodos
+              <svg aria-hidden="true" class="plegable-icono"><use href="#chevron" /></svg>
+            </button>
+          </h2>
+
+          <div id="metodos-cuerpo" class="plegable-cuerpo">
+            <div id="metodos" class="metodos" role="radiogroup" aria-labelledby="metodos-titulo">
+              <label class="metodo">
+                <input type="radio" name="metodo" value="red" checked>
+                <span>Red neuronal</span>
+              </label>
+              <label class="metodo">
+                <input type="radio" name="metodo" value="arbol">
+                <span>Árbol de decisión</span>
+              </label>
+              <label class="metodo">
+                <input type="radio" name="metodo" value="svm">
+                <span>SVM</span>
+              </label>
+              <label class="metodo">
+                <input type="radio" name="metodo" value="knn">
+                <span>KNN</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="tarjeta-comparar plegable" data-plegable="predecir">
+          <h2 class="comparar-titulo">
+            <button type="button" class="plegable-encabezado" id="predecir-titulo"
+                    aria-expanded="false" aria-controls="predecir-cuerpo">
+              Predecir
+              <svg aria-hidden="true" class="plegable-icono"><use href="#chevron" /></svg>
+            </button>
+          </h2>
+
+          <div id="predecir-cuerpo" class="plegable-cuerpo" hidden>
+            <p class="plegable-texto">
+              Dibuja algo en el lienzo y observa qué categoría elige cada método.
+              Así puedes ver en qué coinciden y en qué se equivocan.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <section id="detalle" class="tarjeta-comparar detalle" data-modo="metodos" aria-labelledby="detalle-titulo">
+        <h2 id="detalle-titulo" class="comparar-titulo">Red neuronal</h2>
+
+        <fieldset class="parametros" data-metodo="red">
+          <legend class="sr-only">Parámetros de la red neuronal</legend>
+          <p class="parametros-texto">
+            Aprende ajustando los pesos de sus neuronas cada vez que repasa los dibujos.
+            Puedes cambiar cuántas veces los repasa y cuántas neuronas tiene cada capa oculta.
+          </p>
+          <div class="controles">
+            <label class="parametro">
+              <span>Épocas <output data-para="epocas">30</output></span>
+              <input type="range" name="epocas" min="1" max="100" step="1" value="30">
+            </label>
+            <label class="parametro">
+              <span>Neuronas por capa <output data-para="neuronas">50</output></span>
+              <input type="range" name="neuronas" min="10" max="200" step="10" value="50">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="parametros" data-metodo="arbol" hidden>
+          <legend class="sr-only">Parámetros del árbol de decisión</legend>
+          <p class="parametros-texto">
+            Hace preguntas sobre los píxeles, una tras otra, hasta decidir la categoría.
+            Puedes cambiar cuántas preguntas seguidas puede hacer.
+          </p>
+          <label class="parametro">
+            <span>Profundidad máxima <output data-para="profundidad">5</output></span>
+            <input type="range" name="profundidad" min="1" max="10" step="1" value="5">
+          </label>
+        </fieldset>
+
+        <fieldset class="parametros" data-metodo="svm" hidden>
+          <legend class="sr-only">Parámetros de SVM</legend>
+          <p class="parametros-texto">
+            Busca la frontera que separa mejor a las categorías.
+            Puedes elegir la forma de esa frontera y qué tan estricta es.
+          </p>
+          <div class="controles">
+            <div class="parametro">
+              <span>Kernel</span>
+              <div class="elecciones">
+                <label class="eleccion">
+                  <input type="radio" name="kernel" value="rbf" checked>
+                  <span>RBF</span>
+                </label>
+                <label class="eleccion">
+                  <input type="radio" name="kernel" value="linear">
+                  <span>Lineal</span>
+                </label>
+              </div>
+            </div>
+            <label class="parametro">
+              <span>C <output data-para="c">1</output></span>
+              <input type="range" name="c" min="0.1" max="10" step="0.1" value="1">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="parametros" data-metodo="knn" hidden>
+          <legend class="sr-only">Parámetros de KNN</legend>
+          <p class="parametros-texto">
+            Mira los dibujos más parecidos y elige la categoría que más se repite.
+            Puedes cambiar cuántos dibujos mira.
+          </p>
+          <label class="parametro">
+            <span>Vecinos (k) <output data-para="k">3</output></span>
+            <input type="range" name="k" min="1" max="15" step="1" value="3">
+          </label>
+        </fieldset>
+      </section>
+
+      <section class="tarjeta-comparar detalle" data-modo="predecir" aria-labelledby="dibujo-titulo" hidden>
+        <h2 id="dibujo-titulo" class="comparar-titulo">Dibujo</h2>
+
+        <div class="lienzo">
+          <canvas id="pizarra-comparar" class="pizarra-comparar" width="320" height="320"
+                  aria-label="Lienzo para dibujar"></canvas>
+        </div>
+      </section>
+
+      <section class="tarjeta-comparar columna-resultados" data-modo="metodos" aria-labelledby="resultados-titulo">
+        <h2 id="resultados-titulo" class="comparar-titulo">Resultados generales</h2>
+
+        <ul id="resultados-generales" class="resultados"></ul>
+      </section>
+
+      <section class="tarjeta-comparar columna-resultados" data-modo="predecir" aria-labelledby="prediccion-titulo" hidden>
+        <h2 id="prediccion-titulo" class="comparar-titulo">Resultado de la predicción</h2>
+
+        <ul class="resultados">
+          <li class="resultado"><span>Red neuronal</span><span class="resultado-valor">—</span></li>
+          <li class="resultado"><span>Árbol de decisión</span><span class="resultado-valor">—</span></li>
+          <li class="resultado"><span>SVM</span><span class="resultado-valor">—</span></li>
+          <li class="resultado"><span>KNN</span><span class="resultado-valor">—</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <p id="sin-datos" class="sin-datos" hidden>
+      No hay un proyecto abierto.
+      <a href="./proyectos.html">Ir a proyectos</a>
+    </p>
+  </main>
+
+  <a href="./predecir.html"
+     class="boton-siguiente boton-anterior"
+     aria-label="Volver al paso 3: predecir"
+     title="Predecir">
+    <svg aria-hidden="true" class="boton-siguiente-icono">
+      <use href="#flecha" />
+    </svg>
+  </a>
+
+  <script src="./js/app.js"></script>
+  <script src="./js/comparar.js"></script>
+</body>
+</html>

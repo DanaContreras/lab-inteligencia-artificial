@@ -148,6 +148,46 @@
   color: var(--acento);
 }
 
+.proyecto-iconos {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.boton-icono {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+
+  color: var(--gris-900);
+
+  background-color: var(--blanco);
+  border: var(--borde) solid var(--gris-900);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.boton-icono svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.boton-icono:hover {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+
+.boton-icono-peligro:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.desplegable-icono summary::after {
+  content: none;
+}
+
 .proyectos-mensaje {
   margin-top: 1rem;
   color: var(--gris-600);

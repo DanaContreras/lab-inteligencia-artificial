@@ -47,6 +47,7 @@ function aplicarNivel(avanzado) {
 
   document.body.dataset.nivel = nivel;
   localStorage.setItem(NIVEL_KEY, nivel);
+  document.dispatchEvent(new CustomEvent('nivel', { detail: nivel }));
 }
 
 nivelInput.addEventListener('change', (event) => {
@@ -69,5 +70,5 @@ document.addEventListener('keydown', (event) => {
     ArrowRight: document.getElementById('siguiente-paso'),
   }[event.key];
 
-  if (boton && !boton.disabled) boton.click();
+  if (boton && !boton.disabled && boton.checkVisibility()) boton.click();
 });

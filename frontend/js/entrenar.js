@@ -49,7 +49,14 @@ async function animar(){
     dibujo.classList.add('fragmentado');
 
     await fragmentar(dibujo, muestra.categoria);
-    await esperar(800);
+
+    if (redAvanzada) {
+      await esperar(RETARDO_CAPA * 2 + 100);
+      await retropropagar(muestra.categoria, Math.max(0.2, 0.9 - contador * 0.15));
+      await esperar(300);
+    } else {
+      await esperar(800);
+    }
 
     //indice = (indice + 1) % muestras.length;
     contador++;
@@ -108,6 +115,7 @@ const ESPERA_PREDECIR = 3;
 async function terminarEntrenamiento() {
   animando = false;
   etiqueta.textContent = '';
+  if (redAvanzada) destacarPesos();
 
   const estado = document.getElementById('estado');
   for (let segundos = ESPERA_PREDECIR; segundos > 0; segundos--) {
@@ -122,8 +130,13 @@ btnSiguiente.addEventListener('click', () => {
 });
 
 if (muestras.length) {
+  redAvanzada = document.body.dataset.nivel === 'avanzado';
   dibujarRed();
   redVertical.addEventListener('change', dibujarRed);
+  document.addEventListener('nivel', () => {
+    redAvanzada = document.body.dataset.nivel === 'avanzado';
+    dibujarRed();
+  });
   window.addEventListener('resize', ajustarLienzo);
   iniciarCuadros();
   //animar();

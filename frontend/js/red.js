@@ -22,6 +22,10 @@ const datos = JSON.parse(sessionStorage.getItem('neurofai:datos') || '[]');
 
 const esperar = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
 
+let redAvanzada = false;
+const ESCALA_MIN = 0.7;
+const ESCALA_MAX = 1.3;
+
 
 // Red
 const capas = [];
@@ -36,24 +40,29 @@ function crearRed(nSalida) {
   conexiones.length = 0;
 
   const columnas = [
-    { pos: vertical ? 60 : 90,   n: vertical ? N_ENTRADA_VERTICAL : N_ENTRADA, nombre: 'Entrada' },
-    { pos: vertical ? 230 : 300, n: vertical ? N_OCULTA_VERTICAL : N_OCULTA,   nombre: 'Capa oculta' },
-    { pos: vertical ? 400 : 510, n: nSalida, nombre: 'Salida' },
+    { pos: vertical ? 60 : 90,   n: vertical ? N_ENTRADA_VERTICAL : N_ENTRADA, nombre: 'Entrada', simbolo: 'x', ultimo: 'n' },
+    { pos: vertical ? 230 : 300, n: vertical ? N_OCULTA_VERTICAL : N_OCULTA,   nombre: 'Capa oculta', simbolo: 'w', ultimo: 'm' },
+    { pos: vertical ? 400 : 510, n: nSalida, nombre: 'Salida', simbolo: 'y' },
   ];
 
   const centro  = vertical ? CENTRO_VERTICAL : 185;
   const espacio = vertical ? 560 : 300;
   const pasoMax = vertical ? 150 : 60;
 
-  const posiciones = columnas.map(({ n }) => {
-    const paso = Math.min(espacio / n, pasoMax);
-    const inicio = centro - (paso * (n - 1)) / 2;
-    return Array.from({ length: n }, (_, i) => inicio + i * paso);
+  const huecos = [];
+
+  const posiciones = columnas.map(({ n, ultimo }, c) => {
+    const puntos = redAvanzada && Boolean(ultimo);
+    const lugares = puntos ? n + 1 : n;
+    const paso = Math.min(espacio / lugares, pasoMax);
+    const inicio = centro - (paso * (lugares - 1)) / 2;
+    if (puntos) huecos[c] = { centro: inicio + (n - 1) * paso, paso };
+    return Array.from({ length: n }, (_, i) => inicio + (puntos && i === n - 1 ? n : i) * paso);
   });
 
-  const punto = (c, i) => (vertical
-    ? { x: posiciones[c][i], y: columnas[c].pos }
-    : { x: columnas[c].pos, y: posiciones[c][i] });
+  const enCapa = (pos, a) => (vertical ? { x: a, y: pos } : { x: pos, y: a });
+  const punto = (c, i) => enCapa(columnas[c].pos, posiciones[c][i]);
+  const radio = vertical ? 24 : 16;
 
   for (let c = 0; c < columnas.length - 1; c++) {
     conexiones.push(posiciones[c].map((_, i) => posiciones[c + 1].map((_, j) => {
@@ -76,7 +85,7 @@ function crearRed(nSalida) {
       const nodo = document.createElementNS(SVG_NS, 'circle');
       nodo.setAttribute('cx', x);
       nodo.setAttribute('cy', y);
-      nodo.setAttribute('r', vertical ? 24 : 16);
+      nodo.setAttribute('r', radio);
       nodo.classList.add('nodo');
       red.append(nodo);
       return nodo;
@@ -89,7 +98,42 @@ function crearRed(nSalida) {
     texto.classList.add('red-capa');
     texto.textContent = nombre;
     red.append(texto);
+
+    if (!redAvanzada) return;
+
+    if (huecos[c]) {
+      for (const d of [-1, 0, 1]) {
+        const { x, y } = enCapa(pos, huecos[c].centro + d * huecos[c].paso * 0.2);
+        const p = document.createElementNS(SVG_NS, 'circle');
+        p.setAttribute('cx', x);
+        p.setAttribute('cy', y);
+        p.setAttribute('r', vertical ? 4 : 2.5);
+        p.classList.add('red-puntos');
+        red.append(p);
+      }
+    }
+
+    nodos.forEach((_, i) => {
+      const indice = columnas[c].ultimo && i === nodos.length - 1 ? columnas[c].ultimo : i + 1;
+      etiquetar(punto(c, i), radio * ESCALA_MAX, columnas[c].simbolo, indice, vertical, c === 2);
+    });
   });
+}
+
+function etiquetar({ x, y }, r, simbolo, indice, vertical, arriba) {
+  const texto = document.createElementNS(SVG_NS, 'text');
+  texto.setAttribute('x', vertical ? x - r * 0.8 : x - r - 2);
+  if (!vertical) texto.setAttribute('y', y - r * 0.3);
+  else texto.setAttribute('y', arriba ? y - r - 4 : y + r + 20);
+  texto.classList.add('red-etiqueta');
+
+  const sub = document.createElementNS(SVG_NS, 'tspan');
+  sub.setAttribute('dy', '0.3em');
+  sub.classList.add('red-etiqueta-indice');
+  sub.textContent = indice;
+
+  texto.append(simbolo, sub);
+  red.append(texto);
 }
 
 function dibujarRed() {
@@ -107,9 +151,9 @@ function pulsar(el, clase = 'nodo-activo') {
 
 const RETARDO_CAPA = 250;
 
-function encenderConexion(linea) {
+function encenderConexion(linea, clase = '') {
   const senal = linea.cloneNode();
-  senal.setAttribute('class', 'senal');
+  senal.setAttribute('class', `senal ${clase}`.trim());
   senal.setAttribute('pathLength', 1);
   senal.style.setProperty('--recorrido', `${RETARDO_CAPA}ms`);
   red.insertBefore(senal, capas[0][0]);
@@ -129,6 +173,93 @@ function propagar(entrada, categoria) {
   }, RETARDO_CAPA);
 
   setTimeout(() => pulsar(capas[2][categoria]), RETARDO_CAPA * 2);
+}
+
+// Retropropagación
+function algunos(cantidad, max) {
+  const indices = Array.from({ length: cantidad }, (_, i) => i);
+  indices.sort(() => Math.random() - 0.5);
+  return indices.slice(0, 1 + Math.floor(Math.random() * max));
+}
+
+function ajustarPeso(nodo) {
+  const actual = Number(nodo.dataset.escala || 1);
+  const nueva = Math.min(ESCALA_MAX, Math.max(ESCALA_MIN, actual + Math.random() * 0.3 - 0.12));
+  nodo.dataset.escala = nueva;
+  nodo.style.setProperty('--escala', nueva);
+}
+
+async function retropropagar(categoria, tasaError) {
+  const salida = capas[2]?.[categoria];
+  if (!salida) return;
+
+  if (Math.random() > tasaError) {
+    salida.classList.add('nodo-aprendido');
+    await esperar(600);
+    salida.classList.remove('nodo-aprendido');
+    return;
+  }
+
+  const ocultas = algunos(capas[1].length, 2);
+  const entradas = algunos(capas[0].length, 2);
+  const nodosOcultos = ocultas.map((i) => capas[1][i]);
+  const nodosEntrada = entradas.map((i) => capas[0][i]);
+  const errados = [salida, ...nodosOcultos, ...nodosEntrada];
+
+  salida.classList.add('nodo-error');
+  for (const o of ocultas) encenderConexion(conexiones[1][o][categoria], 'senal-error');
+  await esperar(RETARDO_CAPA);
+
+  nodosOcultos.forEach((n) => n.classList.add('nodo-error'));
+  for (const e of entradas) {
+    for (const o of ocultas) encenderConexion(conexiones[0][e][o], 'senal-error');
+  }
+  await esperar(RETARDO_CAPA);
+
+  nodosEntrada.forEach((n) => n.classList.add('nodo-error'));
+  await esperar(500);
+
+  errados.forEach((n) => n.classList.replace('nodo-error', 'nodo-aprendido'));
+  [...nodosOcultos, ...nodosEntrada].forEach(ajustarPeso);
+  await esperar(700);
+
+  errados.forEach((n) => n.classList.remove('nodo-aprendido'));
+}
+
+function destacarPesos() {
+  for (const capa of capas.slice(0, 2)) {
+    const orden = [...capa].sort((a, b) => (a.dataset.escala || 1) - (b.dataset.escala || 1));
+    orden.forEach((nodo, i) => {
+      const escala = ESCALA_MIN + ((ESCALA_MAX - ESCALA_MIN) * i) / Math.max(orden.length - 1, 1);
+      nodo.dataset.escala = escala;
+      nodo.style.setProperty('--escala', escala);
+    });
+  }
+  guardarPesos();
+}
+
+function clavePesos() {
+  return `neurofai:pesos:${sessionStorage.getItem('neurofai:proyectoId') || ''}`;
+}
+
+function guardarPesos() {
+  const pesos = capas.slice(0, 2).map((capa) => capa.map((n) => Number(n.dataset.escala || 1)));
+  sessionStorage.setItem(clavePesos(), JSON.stringify(pesos));
+}
+
+function aplicarPesos() {
+  const pesos = JSON.parse(sessionStorage.getItem(clavePesos()) || 'null');
+  if (!pesos) return;
+
+  capas.slice(0, 2).forEach((capa, c) => {
+    const guardados = pesos[c] || [];
+    capa.forEach((nodo, i) => {
+      const escala = i === capa.length - 1 ? guardados.at(-1) : guardados[i];
+      if (escala === undefined) return;
+      nodo.dataset.escala = escala;
+      nodo.style.setProperty('--escala', escala);
+    });
+  });
 }
 
 // Partículas
