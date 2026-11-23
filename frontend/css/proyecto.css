@@ -667,10 +667,6 @@ button.opcion.herramienta-activa .icono {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .acciones-dibujo .btn-guardar {
-        grid-column: 1 / -1;
-    }
 }
 
 /*Cámara*/
@@ -695,7 +691,7 @@ video {
 }
 
 #drop-zone {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 500px;
@@ -730,6 +726,15 @@ video {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+.origenes-imagen {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
 
 #agregar-imagenes:disabled {
@@ -785,6 +790,11 @@ video {
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  #drop-zone {
+    display: flex;
+  }
+}
 
 /*------------------------------------------------------------*/
 
