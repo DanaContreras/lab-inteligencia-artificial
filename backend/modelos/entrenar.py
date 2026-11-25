@@ -13,6 +13,11 @@ TAMANO = (28, 28)
 SEMILLA = 42
 LOTE = 10
 
+# Parámetros opcionales del nivel avanzado
+parametros = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
+EPOCAS = parametros.get("epocas", 30)
+NEURONAS = parametros.get("neuronas", 50)
+
 # Verificar que cada categoría tenga suficientes imágenes.
 categorias = sorted(
     p.name for p in carpeta_dataset.iterdir() if p.is_dir()
@@ -82,8 +87,8 @@ validacion = validacion.map(normalizar)
 modelo = tf.keras.Sequential([
     tf.keras.layers.Input(shape=(28,28,1)),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(50, activation='relu'),
-    tf.keras.layers.Dense(50, activation='relu'),
+    tf.keras.layers.Dense(NEURONAS, activation='relu'),
+    tf.keras.layers.Dense(NEURONAS, activation='relu'),
     tf.keras.layers.Dense(len(clases), activation='softmax')]
 )
 
@@ -97,7 +102,7 @@ modelo.compile(
 #Entrenamiento
 historial = modelo.fit(
     entrenamiento,
-    epochs=30,
+    epochs=EPOCAS,
     validation_data=validacion,
 )
 

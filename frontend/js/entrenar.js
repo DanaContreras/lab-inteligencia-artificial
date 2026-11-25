@@ -129,6 +129,15 @@ btnSiguiente.addEventListener('click', () => {
   location.href = './predecir.html';
 });
 
+let basicoIniciado = false;
+
+function iniciarBasico() {
+  if (basicoIniciado || document.body.dataset.nivel === 'avanzado') return;
+  basicoIniciado = true;
+  iniciarCuadros();
+  ejecutarEntrenamiento();
+}
+
 if (muestras.length) {
   redAvanzada = document.body.dataset.nivel === 'avanzado';
   dibujarRed();
@@ -138,9 +147,8 @@ if (muestras.length) {
     dibujarRed();
   });
   window.addEventListener('resize', ajustarLienzo);
-  iniciarCuadros();
-  //animar();
-  ejecutarEntrenamiento();
+  iniciarBasico();
+  document.addEventListener('nivel', iniciarBasico);
 } else {
   escenario.hidden = true;
   document.getElementById('estado').hidden = true;

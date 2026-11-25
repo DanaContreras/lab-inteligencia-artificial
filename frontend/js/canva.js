@@ -89,22 +89,20 @@ function grosorLinea() {
 
 document.getElementById('limpiar-dibujo').addEventListener('click', limpiarLienzo);
 
-// document.getElementById('guardar-dibujo').addEventListener('click', () => {
-//   if (categoriaDestino) {
-//     console.log("Categoria Destino:", categoriaDestino)
-//     agregarMuestra(categoriaDestino, miniaturaLienzo());
-//     guardarDibujo(categoriaDestino);
-//     limpiarLienzo();
-//   }
-// });
+document.getElementById('guardar-dibujo').addEventListener('click', () => {
+  if (categoriaDestino) {
+    agregarMuestra(categoriaDestino, miniaturaLienzo());
+    limpiarLienzo();
+  }
+});
 
-// function miniaturaLienzo(lado = 160) {
-//   const copia = document.createElement('canvas');
-//   copia.width = lado;
-//   copia.height = lado;
-//   copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
-//   return copia.toDataURL('image/jpeg', 0.85);
-// }
+function miniaturaLienzo(lado = 160) {
+  const copia = document.createElement('canvas');
+  copia.width = lado;
+  copia.height = lado;
+  copia.getContext('2d').drawImage(canvas, 0, 0, lado, lado);
+  return copia.toDataURL('image/jpeg', 0.85);
+}
 
 // async function guardarDibujo(categoria){
 //     const imagen = lienzo.toDataURL("image/png");

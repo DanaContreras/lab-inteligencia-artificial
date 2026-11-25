@@ -1,0 +1,449 @@
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Disposición */
+.avanzado {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.6fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.avanzado-predecir {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: clamp(24rem, calc(100dvh - 20rem), 39rem);
+  grid-template-areas: "dibujo centro resultados";
+  column-gap: clamp(3rem, 7vw, 8rem);
+}
+
+.predecir-dibujo {
+  grid-area: dibujo;
+  justify-self: end;
+  width: min(100%, 36rem);
+}
+
+.avanzado-centro { grid-area: centro; }
+
+.predecir-resultados {
+  grid-area: resultados;
+  justify-self: start;
+  width: min(100%, 36rem);
+}
+
+/* El lienzo se ajusta al espacio libre de la tarjeta sin dejar de ser cuadrado */
+.predecir-dibujo .lugar-pizarra {
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  container-type: size;
+}
+
+.predecir-dibujo .pizarra,
+.predecir-dibujo #limpiar-avanzado {
+  width: min(100cqw, 100cqh - 4rem);
+}
+
+.avanzado[hidden] {
+  display: none;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: var(--borde) solid var(--gris-900);
+  border-radius: var(--radio-grande);
+  background-color: var(--blanco);
+}
+
+.tarjeta-titulo {
+  font-size: var(--texto-lg);
+  line-height: 1;
+}
+
+.tarjeta-subtitulo {
+  font-size: var(--texto-sm);
+  line-height: 1;
+}
+
+.tarjeta-texto {
+  font-size: var(--texto-sm);
+  line-height: 1.2;
+  color: var(--gris-600);
+}
+
+.tarjeta-texto:empty {
+  display: none;
+}
+
+/* Métodos */
+.metodos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metodo,
+.eleccion {
+  position: relative;
+  cursor: pointer;
+}
+
+.metodo input,
+.eleccion input {
+  position: absolute;
+  opacity: 0;
+}
+
+.metodo-caja,
+.eleccion span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.125rem 0.875rem;
+  border: var(--borde) solid var(--gris-900);
+  border-radius: var(--radio-grande);
+  white-space: nowrap;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.eleccion span {
+  justify-content: center;
+  padding-block: 0;
+  border-radius: 9999px;
+  font-size: var(--texto-sm);
+}
+
+.metodo-estado {
+  font-size: var(--texto-xs);
+  color: var(--gris-500);
+}
+
+.metodo:hover .metodo-caja,
+.eleccion:hover span {
+  background-color: var(--gris-100);
+}
+
+.metodo input:checked + .metodo-caja,
+.eleccion input:checked + span {
+  background-color: var(--gris-900);
+  color: var(--blanco);
+}
+
+.metodo input:checked + .metodo-caja .metodo-estado {
+  color: var(--gris-300);
+}
+
+.metodo input:focus-visible + .metodo-caja,
+.eleccion input:focus-visible + span {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.metodo:has(input:disabled),
+.eleccion:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.metodo input:disabled:not(:checked) + .metodo-caja {
+  border-color: var(--gris-300);
+  background-color: transparent;
+  color: var(--gris-400);
+}
+
+.metodo input:disabled:checked + .metodo-caja {
+  opacity: 0.6;
+}
+
+/* Detalle del método */
+.parametros {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.parametros[hidden] {
+  display: none;
+}
+
+.parametro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.controles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.parametro > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.parametro output {
+  color: var(--acento);
+}
+
+.parametro input[type="range"] {
+  width: 100%;
+  accent-color: var(--acento);
+}
+
+.elecciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.eleccion {
+  flex: 1;
+}
+
+/* Acciones */
+.avanzado .boton-accion {
+  width: 100%;
+}
+
+/* Entrenar: ambas tarjetas con la misma altura, ocupando la pantalla */
+.contenido-proyecto:has(> .avanzado-entrenar:not([hidden])),
+.contenido-proyecto:has(> .avanzado-predecir:not([hidden])) {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 6rem;
+}
+
+.avanzado-entrenar {
+  flex: 1;
+  column-gap: 4rem;
+  grid-template-rows: minmax(22rem, 1fr) auto;
+  grid-template-areas:
+    "metodos detalle"
+    "acciones .";
+}
+
+.entrenar-metodos { grid-area: metodos; }
+.entrenar-detalle { grid-area: detalle; }
+
+.entrenar-acciones {
+  grid-area: acciones;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.entrenar-metodos .metodos {
+  flex: 1;
+  gap: 1.25rem;
+}
+
+.entrenar-metodos .metodo {
+  display: flex;
+  flex: 1 1 0;
+  max-height: 4.5rem;
+}
+
+.entrenar-metodos .metodo-caja {
+  flex: 1;
+  align-items: center;
+}
+
+.entrenar-detalle {
+  padding: 2rem 2.5rem;
+}
+
+.entrenar-detalle .parametros {
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.entrenar-detalle .tarjeta-texto {
+  font-size: calc(var(--texto) * 1.15);
+  line-height: 1.3;
+}
+
+.entrenar-detalle .parametros > .controles,
+.entrenar-detalle .parametros > .parametro {
+  margin-block: auto;
+}
+
+.entrenar-detalle .controles {
+  gap: 1.75rem;
+}
+
+.entrenar-detalle .parametro {
+  gap: 0.5rem;
+}
+
+.entrenar-detalle .eleccion {
+  flex: none;
+}
+
+.entrenar-detalle .eleccion span {
+  min-width: 8rem;
+  padding-inline: 1.5rem;
+}
+
+.avanzado .boton-entrenar {
+  width: auto;
+  min-width: 10rem;
+  padding: 0.375rem 2rem;
+}
+
+.pulso {
+  animation: pulso 500ms ease-out 2;
+}
+
+.pulso-continuo {
+  animation: pulso 1.4s ease-out infinite;
+}
+
+@keyframes pulso {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgb(124 58 237 / 0.6); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0.875rem rgb(124 58 237 / 0); }
+}
+
+.boton-siguiente[aria-disabled="true"],
+.boton-siguiente[aria-disabled="true"]:hover {
+  background-color: var(--gris-300);
+  cursor: not-allowed;
+}
+
+.avanzado-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.avanzado-centro .boton-accion {
+  width: auto;
+  min-width: 9rem;
+  padding: 0.5rem 2rem;
+}
+
+.avanzado-centro .estado-avanzado {
+  max-width: 12rem;
+}
+
+.estado-avanzado {
+  min-height: 1.2em;
+  font-size: var(--texto-xs);
+  line-height: 1.2;
+  color: var(--gris-600);
+  text-align: center;
+}
+
+/* Predecir */
+.lugar-pizarra {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.resultado {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 1rem;
+  padding: 0.5rem 0.875rem;
+  line-height: 1.3;
+  border: var(--borde) solid var(--gris-900);
+  border-radius: var(--radio-grande);
+}
+
+.resultado-valor {
+  color: var(--gris-400);
+}
+
+.resultado-valor-listo {
+  color: var(--acento);
+}
+
+.predecir-resultados .resultado {
+  flex-wrap: nowrap;
+  align-items: baseline;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--texto-sm);
+  white-space: nowrap;
+}
+
+.predecir-resultados .tarjeta-texto {
+  font-size: var(--texto-xs);
+}
+
+.resultado-confianza {
+  font-size: var(--texto-xs);
+  color: var(--gris-500);
+}
+
+@media (max-width: 800px) {
+  .avanzado {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .avanzado-predecir {
+    grid-template-rows: none;
+    grid-template-areas: "dibujo" "centro" "resultados";
+    row-gap: 1.25rem;
+  }
+
+  .predecir-dibujo,
+  .predecir-resultados {
+    justify-self: center;
+    width: min(100%, 26rem);
+  }
+
+  .predecir-dibujo .lugar-pizarra {
+    container-type: normal;
+  }
+
+  .predecir-dibujo .pizarra,
+  .predecir-dibujo #limpiar-avanzado {
+    width: 100%;
+  }
+
+  .avanzado-entrenar {
+    grid-template-rows: none;
+    grid-template-areas: "metodos" "acciones" "detalle";
+    align-content: start;
+  }
+
+  .entrenar-metodos .metodo {
+    flex: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .tarjeta {
+    padding: 1rem;
+  }
+
+  .tarjeta.entrenar-detalle {
+    padding: 1.25rem 1.5rem;
+  }
+}

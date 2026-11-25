@@ -3,7 +3,7 @@
 ## Requisitos
 
 - Node.js
-- Python 3.13 (con TensorFlow, ver `backend/requirements.txt`)
+- Python 3.13 (con TensorFlow y scikit-learn, ver `backend/requirements.txt`)
 
 ## Ejecución en local
 

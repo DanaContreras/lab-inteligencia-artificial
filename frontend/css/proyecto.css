@@ -67,8 +67,7 @@ body[data-menu="abierto"] .topbar {
   transform: none;
 }
 
-.pasos > .paso:last-child .paso-etiqueta,
-body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
+.pasos > .paso:last-child .paso-etiqueta {
   left: auto;
   right: 0;
   transform: none;
@@ -263,6 +262,39 @@ body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
 .boton-siguiente-icono {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+.boton-accion {
+  padding: 0.25rem 1rem;
+
+  background-color: var(--blanco);
+  border: var(--borde) solid var(--gris-900);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.boton-accion:hover:not(:disabled) {
+  background-color: var(--gris-900);
+  color: var(--blanco);
+}
+
+.boton-accion-primario {
+  background-color: var(--acento);
+  border-color: var(--acento);
+  color: var(--blanco);
+}
+
+.boton-accion-primario:hover:not(:disabled) {
+  background-color: var(--acento-fuerte);
+  border-color: var(--acento-fuerte);
+}
+
+.boton-accion:disabled {
+  background-color: var(--gris-100);
+  border-color: var(--gris-300);
+  color: var(--gris-400);
+  cursor: not-allowed;
 }
 
 /* Modal de nueva muestra */
@@ -568,10 +600,6 @@ button.opcion.herramienta-activa .icono {
     .paso-numero {
         width: 2.25rem;
         height: 2.25rem;
-    }
-
-    body[data-nivel="avanzado"] .paso:not(.paso-activo) .paso-etiqueta {
-        display: none;
     }
 
     .categorias {
