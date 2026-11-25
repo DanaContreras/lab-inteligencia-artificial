@@ -181,7 +181,7 @@ y_val = labels_norm[indices_val]
 n_categorias = len(np.unique(labels))
 
 modelo = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(28,28,1)),
+    tf.keras.layers.Input(shape=(32,32,1)),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(NEURONAS, activation='relu'),
     tf.keras.layers.Dense(NEURONAS, activation='relu'),

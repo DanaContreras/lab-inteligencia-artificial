@@ -1,5 +1,6 @@
 const inputImagenes = document.getElementById("fImg");
 const botonElegirDispositivo = document.getElementById("elegir-dispositivo");
+const botonDrive = document.getElementById("elegir-drive");
 const zonaArrastre = document.getElementById("drop-zone");
 const botonAgregarImagenes = document.getElementById("agregar-imagenes");
 const botonCancelarSubida = document.getElementById("cancelar-subida");
@@ -8,9 +9,23 @@ const cantidadImagenes = document.getElementById("cantidad-imagenes");
 
 let imagenesSeleccionadas = [];
 
+async function intentar(accion) {
+  try {
+    await accion();
+  } catch (error) {
+    console.error(error);
+    if (mensaje.textContent.endsWith('…')) mensaje.textContent = '';
+    alert(error.message);
+  }
+}
 
 botonElegirDispositivo.addEventListener("click", () => {
     inputImagenes.click();
+});
+
+botonDrive.addEventListener('click', () => {
+  console.log("SUBIR DESDE DRIVE")
+  intentar(subirDesdeDrive);
 });
 
 // Procesar archivos seleccionados
@@ -171,5 +186,46 @@ function cerrarModalSubida() {
     zonaArrastre.classList.remove("arrastrando");
 }
 
-//botonCancelarSubida.addEventListener("click", cerrarModalSubida);
-//botonCerrarSubida.addEventListener("click", cerrarModalSubida);
+// Subir imágenes desde Drive
+async function subirDesdeDrive() {
+
+    modalSubida.close();
+    let imagenes;
+    try{
+        imagenes = await elegirFotosDeDrive();
+
+        if (!imagenes || imagenes.length === 0) return;
+
+        const archivos = []
+        modalSubida.showModal();
+        cantidadImagenes.textContent = "Cargando imágenes...";
+        for (const imagen of imagenes) {
+            const img = await descargarDeDrive(imagen.id);
+
+            const archivo = new File(
+                    [img],
+                    imagen.name,
+                    { type: imagen.mimeType }
+                );
+
+                archivos.push(archivo)
+            }
+            console.log("FIN DESCARGA IMAGEN")
+
+        procesarImagenes(archivos)
+
+        const cantidad = imagenesSeleccionadas.length;
+
+        if (cantidad === 0) {
+            cantidadImagenes.textContent = "No hay imágenes seleccionadas";
+        } else if (cantidad === 1) {
+            cantidadImagenes.textContent = "Se seleccionó 1 imagen";
+        } else {
+            cantidadImagenes.textContent = `Se seleccionaron ${cantidad} imágenes`;
+        }
+
+        inputImagenes.value = "";
+    }catch{
+        console.error("Error al cargar imágenes:", error);
+    }
+}

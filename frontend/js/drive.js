@@ -1,4 +1,7 @@
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_SCOPE = [
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive.readonly',
+].join(' ');
 const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
 const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
 const MIME_CARPETA = 'application/vnd.google-apps.folder';
@@ -123,7 +126,7 @@ function cargarPicker() {
   });
 }
 
-async function abrirPicker(titulo, crearVista) {
+async function abrirPicker(titulo, crearVista, multiple=false) {
   await conectarDrive();
   await cargarPicker();
 
@@ -136,9 +139,10 @@ async function abrirPicker(titulo, crearVista) {
       .setAppId(configDrive.appId)
       .setLocale('es')
       .setCallback((datos) => {
-        if (datos.action === google.picker.Action.PICKED) resolve(datos.docs[0]);
+        if (datos.action === google.picker.Action.PICKED) resolve(multiple ? datos.docs : datos.docs[0]);
         if (datos.action === google.picker.Action.CANCEL) resolve(null);
       })
+      .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
       .build()
       .setVisible(true);
   });
@@ -161,6 +165,13 @@ function elegirCarpetaDrive() {
   );
 }
 
+function elegirFotosDeDrive() {
+  return abrirPicker('Elige las fotos a subir', () =>
+    new google.picker.DocsView(google.picker.ViewId.DOCS_IMAGES)
+      .setIncludeFolders(true)
+  , true);
+}
+
 async function descargarDeDrive(driveId) {
   const respuesta = await pedirDrive(`${DRIVE_API}/${driveId}?alt=media`);
 
@@ -168,3 +179,60 @@ async function descargarDeDrive(driveId) {
 
   return respuesta.blob();
 }
+
+////////////////////////////////////////////////////////
+
+
+// async function obtenerIdRealPorPadreYNombre(doc) {
+//   if (!doc || !doc.parentId || !doc.name) {
+//     return null;
+//   }
+
+//   const nombreEscapado = doc.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+//   const consulta = encodeURIComponent(
+//     `'${doc.parentId}' in parents and name = '${nombreEscapado}' and trashed = false`
+//   );
+
+//   const url = `https://www.googleapis.com/drive/v3/files?q=${consulta}&fields=files(id,name,mimeType)&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+//   const respuesta = await pedirDrive(url);
+
+//   if (!respuesta.ok) {
+//     console.warn('Error al buscar en Drive:', respuesta.status, await respuesta.text());
+//     return null;
+//   }
+
+//   const datos = await respuesta.json();
+//   console.log('RESULTADO BUSQUEDA DRIVE:', datos.files);
+
+//   const coincidencia =
+//     datos.files?.find((f) => f.mimeType === doc.mimeType) || datos.files?.[0];
+
+//   return coincidencia?.id || null;
+// }
+
+// async function descargarImagenDeDrive(doc) {
+//   const esObjeto = typeof doc === 'object' && doc !== null;
+//   let fileId = esObjeto ? doc.id : doc;
+
+//   const construirUrl = (id) =>
+//     `https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`;
+
+//   let respuesta = await pedirDrive(construirUrl(fileId));
+
+//   if (respuesta.status === 404 && esObjeto && doc.parentId && doc.name) {
+//     const idReal = await obtenerIdRealPorPadreYNombre(doc);
+
+//     if (idReal && idReal !== fileId) {
+//       fileId = idReal;
+//       respuesta = await pedirDrive(construirUrl(fileId));
+//     }
+//   }
+
+//   if (!respuesta.ok) {
+//     const detalleError = await respuesta.text();
+//     console.error('Error de Google Drive:', respuesta.status, detalleError);
+//     throw new Error(`No se pudo descargar el archivo de Google Drive (${respuesta.status}).`);
+//   }
+
+//   return respuesta.blob();
+// }

@@ -173,6 +173,8 @@ async function abrirDesdeDrive() {
 
   if (!archivo) return;
 
+  console.log('DOC DE DRIVE:', JSON.stringify(archivo, null, 2));
+
   mensaje.textContent = 'Descargando de Google Drive…';
   await importarZip(await descargarDeDrive(archivo.id), archivo.id);
 }
