@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial · NeuroFAI</title>
+  <link rel="stylesheet" href="./css/estilos.css">
+  <link rel="stylesheet" href="./css/tutorial.css">
+</head>
+
+<body>
+  <script src="./js/menu.js"></script>
+
+  <main id="content" class="contenido contenido-tutorial">
+
+    <div class="lateral">
+      <header class="topbar">
+        <h1 class="topbar-marca">NeuroFAI</h1>
+      </header>
+
+      <nav class="indice" aria-labelledby="indice-titulo">
+        <h2 id="indice-titulo" class="indice-titulo">Contenido</h2>
+
+        <p class="indice-grupo">
+          <a href="#nivel-basico">Nivel básico</a>
+        </p>
+        <ol class="indice-lista">
+          <li><a href="#basico-proyecto">Crear un proyecto</a></li>
+          <li><a href="#basico-datos">Agregar datos</a></li>
+          <li><a href="#basico-entrenar">Entrenar</a></li>
+          <li><a href="#basico-predecir">Predecir</a></li>
+        </ol>
+
+        <p class="indice-grupo">
+          <a href="#nivel-avanzado">Nivel avanzado</a>
+        </p>
+        <ol class="indice-lista">
+          <li><a href="#avanzado-activar">Activar el nivel avanzado</a></li>
+          <li><a href="#avanzado-metodos">Los métodos</a></li>
+          <li><a href="#avanzado-entrenar">Entrenar</a></li>
+          <li><a href="#avanzado-predecir">Predecir</a></li>
+        </ol>
+
+        <p class="indice-grupo">
+          <a href="#propuestas">Propuestas</a>
+        </p>
+      </nav>
+    </div>
+
+    <article class="tutorial">
+
+      <header class="tutorial-cabecera">
+        <h2 class="tutorial-titulo">Tutorial</h2>
+        <p class="tutorial-texto">
+          Esta guía de primeros pasos está pensada para docentes que quieran
+          usar NeuroFAI como herramienta de enseñanza, especialmente en el nivel
+          primario y secundario. Presenta los dos niveles de la plataforma, sus
+          diferencias y la información necesaria para aprovecharla.
+        </p>
+      </header>
+
+      <section id="nivel-basico" class="apartado" aria-labelledby="nivel-basico-titulo">
+        <h2 id="nivel-basico-titulo" class="apartado-titulo">Nivel básico</h2>
+        <p class="tutorial-texto">
+          El nivel básico está pensado especialmente para enseñar aprendizaje
+          automático en la escuela primaria. Muestra de forma visual e
+          interactiva cómo funciona una red neuronal: los estudiantes aportan
+          ejemplos, el modelo aprende de ellos y luego, ante un dato nuevo,
+          predice a qué categoría pertenece.
+        </p>
+
+        <section id="basico-proyecto" class="tema" aria-labelledby="basico-proyecto-titulo">
+          <h3 id="basico-proyecto-titulo" class="tema-titulo">Crear un proyecto</h3>
+          <p class="tutorial-texto">
+            El primer paso es crear un proyecto desde la sección Proyectos y
+            darle un nombre. En él se guardan los datos con los que se
+            entrenará la red neuronal.
+          </p>
+          <p class="tutorial-texto">
+            Como la plataforma no guarda los proyectos en la nube, conviene
+            descargarlos para no perderlos. Pueden guardarse en la computadora
+            que se esté usando o en una cuenta de Google Drive. Del mismo modo,
+            un proyecto creado anteriormente puede abrirse desde la computadora
+            o desde Google Drive.
+          </p>
+        </section>
+
+        <section id="basico-datos" class="tema" aria-labelledby="basico-datos-titulo">
+          <h3 id="basico-datos-titulo" class="tema-titulo">Agregar datos</h3>
+          <p class="tutorial-texto">
+            En esta etapa se cargan los ejemplos con los que el modelo va a
+            aprender. Se pueden crear varias categorías, cambiarles el nombre y
+            agregar a cada una todas las muestras que se quiera. Hay tres formas
+            de agregar una muestra:
+          </p>
+          <ol class="tutorial-lista">
+            <li>Dibujarla en la plataforma.</li>
+            <li>Sacarle una foto con la cámara.</li>
+            <li>Subir una imagen desde la computadora o desde Google Drive.</li>
+          </ol>
+          <p class="tutorial-texto">
+            Estas opciones permiten adaptar la actividad a los dispositivos con
+            los que cuente cada docente.
+          </p>
+        </section>
+
+        <section id="basico-entrenar" class="tema" aria-labelledby="basico-entrenar-titulo">
+          <h3 id="basico-entrenar-titulo" class="tema-titulo">Entrenar</h3>
+          <p class="tutorial-texto">
+            Durante el entrenamiento se muestra una animación que ilustra cómo
+            funciona una red neuronal. Se puede ver cómo cada imagen agregada
+            recorre la red mientras el modelo aprende a distinguir las
+            categorías.
+          </p>
+        </section>
+
+        <section id="basico-predecir" class="tema" aria-labelledby="basico-predecir-titulo">
+          <h3 id="basico-predecir-titulo" class="tema-titulo">Predecir</h3>
+          <p class="tutorial-texto">
+            Una vez entrenado el modelo, llega el momento de ponerlo a prueba.
+            Los estudiantes hacen un dibujo nuevo en la pizarra y presionan
+            Predecir. El dibujo recorre la red y se ilumina la categoría que el
+            modelo considera correcta.
+          </p>
+          <p class="tutorial-texto">
+            El modelo no siempre acierta, y eso también es parte del
+            aprendizaje ya que invita a preguntarse por qué se equivocó y qué ejemplos
+            habría que agregar para que mejore.
+          </p>
+        </section>
+      </section>
+
+      <section id="nivel-avanzado" class="apartado" aria-labelledby="nivel-avanzado-titulo">
+        <h2 id="nivel-avanzado-titulo" class="apartado-titulo">Nivel avanzado</h2>
+        <p class="tutorial-texto">
+          El nivel avanzado está pensado para la escuela secundaria y nivel universitario. Mantiene
+          las mismas etapas que el nivel básico, pero permite elegir entre
+          distintos métodos de aprendizaje automático, ajustar sus parámetros y
+          comparar sus predicciones sobre un mismo dibujo.
+        </p>
+
+        <section id="avanzado-activar" class="tema" aria-labelledby="avanzado-activar-titulo">
+          <h3 id="avanzado-activar-titulo" class="tema-titulo">Activar el nivel avanzado</h3>
+          <p class="tutorial-texto">
+            El nivel se cambia desde el menú lateral, que se abre con el botón
+            de la esquina superior izquierda. Allí hay un interruptor que pasa
+            del nivel básico al avanzado y viceversa. La elección se recuerda la
+            próxima vez que se abra la plataforma.
+          </p>
+          <p class="tutorial-texto">
+            La etapa de agregar datos es igual en ambos niveles; los cambios
+            aparecen al entrenar y al predecir.
+          </p>
+        </section>
+
+        <section id="avanzado-metodos" class="tema" aria-labelledby="avanzado-metodos-titulo">
+          <h3 id="avanzado-metodos-titulo" class="tema-titulo">Métodos</h3>
+          <p class="tutorial-texto">
+            Cada método aprende de los ejemplos de una manera distinta y tiene
+            sus propios parámetros:
+          </p>
+          <ul class="tutorial-lista tutorial-lista-puntos">
+            <li>
+              <strong>Red neuronal:</strong> aprende ajustando los pesos de sus
+              neuronas cada vez que repasa los ejemplos. Se puede elegir cuántas
+              veces los repasa (épocas) y cuántas neuronas tiene cada capa.
+            </li>
+            <li>
+              <strong>Árbol de decisión:</strong> hace preguntas sobre los
+              píxeles de la imagen, una tras otra, hasta decidir la categoría.
+              Se puede elegir cuántas preguntas seguidas puede hacer
+              (profundidad máxima).
+            </li>
+            <li>
+              <strong>SVM (máquina de vectores de soporte):</strong> busca la
+              frontera que mejor separa a las categorías. Se puede elegir la
+              forma de esa frontera (kernel lineal o RBF) y qué tan estricta es
+              (parámetro C).
+            </li>
+            <li>
+              <strong>KNN (k vecinos más cercanos):</strong> busca los ejemplos
+              más parecidos al dibujo nuevo y elige la categoría que más se
+              repite entre ellos. Se puede elegir cuántos vecinos mira (k).
+            </li>
+          </ul>
+        </section>
+
+        <section id="avanzado-entrenar" class="tema" aria-labelledby="avanzado-entrenar-titulo">
+          <h3 id="avanzado-entrenar-titulo" class="tema-titulo">Entrenar</h3>
+          <p class="tutorial-texto">
+            A la izquierda se encuentra el listado de métodos. Se pueden
+            seleccionar uno o varios. A la derecha se muestran la descripción y
+            los parámetros del último método seleccionado, que pueden
+            modificarse antes de entrenar.
+          </p>
+          <p class="tutorial-texto">
+            Al presionar Entrenar, los métodos elegidos se entrenan uno tras
+            otro con los mismos datos. Recién cuando termina el entrenamiento se
+            habilita el paso a la etapa de predicción.
+          </p>
+        </section>
+
+        <section id="avanzado-predecir" class="tema" aria-labelledby="avanzado-predecir-titulo">
+          <h3 id="avanzado-predecir-titulo" class="tema-titulo">Predecir</h3>
+          <p class="tutorial-texto">
+            Al igual que en el nivel básico, se hace un dibujo nuevo y se
+            presiona Predecir. En este caso, el resultado muestra la respuesta
+            de cada método entrenado junto con el porcentaje de seguridad con
+            que la afirma.
+          </p>
+          <p class="tutorial-texto">
+            Debajo se indica si todos los métodos coinciden o no. Las
+            diferencias son una buena oportunidad para discutir por qué cada
+            método aprendió algo distinto a partir de los mismos ejemplos.
+          </p>
+        </section>
+      </section>
+
+      <aside id="propuestas" class="recuadro" aria-labelledby="propuestas-titulo">
+        <h2 id="propuestas-titulo" class="recuadro-titulo">Propuestas</h2>
+        <p class="tutorial-texto">
+          Algunas ideas de actividades para explorar con los estudiantes:
+        </p>
+        <ul class="tutorial-lista tutorial-lista-puntos">
+          <li>
+            <strong>Jugar con el significado de las categorías:</strong> crear
+            categorías que para nosotros tienen sentido pero que no dependen de
+            la forma. ¿El modelo entiende lo que significan o solo compara formas?
+          </li>
+          <li>
+            <strong>Probar distintas cantidades de datos:</strong> entrenar con
+            pocos ejemplos por categoría y luego con el doble, y comparar cuántas
+            veces acierta en cada caso.
+          </li>
+          <li>
+            <strong>Desequilibrar las categorías:</strong> cargar muchos
+            ejemplos en una categoría y muy pocos en otra. ¿Hacia cuál se
+            inclinan las predicciones?
+          </li>
+          <li>
+            <strong>Categorías parecidas o muy distintas:</strong> comparar qué
+            pasa al separar un círculo de un cuadrado y al separar un círculo de
+            un óvalo.
+          </li>
+          <li>
+            <strong>Dibujar algo que no está en ninguna categoría:</strong> el
+            modelo igual elige una. ¿Por qué no puede responder ''no sé''?
+          </li>
+          <li>
+            <strong>Ejemplos mal clasificados:</strong> agregar a propósito
+            algunos dibujos en la categoría equivocada y observar cómo afecta
+            a las predicciones.
+          </li>
+          <li>
+            <strong>Comparar métodos y parámetros</strong> (nivel avanzado):
+            entrenar todos los métodos con los mismos datos, buscar dibujos en
+            los que no coincidan y probar valores extremos, como una sola época (red neuronal)
+            o un solo vecino (knn).
+          </li>
+        </ul>
+      </aside>
+    </article>
+  </main>
+
+  <script src="./js/app.js"></script>
+  <script src="./js/tutorial.js"></script>
+</body>
+</html>
