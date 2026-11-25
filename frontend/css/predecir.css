@@ -41,38 +41,8 @@ opcion-icono {
   margin-top: 0.5rem;
 }
 
-.boton-accion {
+.acciones-prediccion .boton-accion {
   flex: 1;
-  padding: 0.25rem 1rem;
-
-  background-color: var(--blanco);
-  border: var(--borde) solid var(--gris-900);
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease;
-}
-
-.boton-accion:hover:not(:disabled) {
-  background-color: var(--gris-900);
-  color: var(--blanco);
-}
-
-.boton-accion-primario {
-  background-color: var(--acento);
-  border-color: var(--acento);
-  color: var(--blanco);
-}
-
-.boton-accion-primario:hover:not(:disabled) {
-  background-color: var(--acento-fuerte);
-  border-color: var(--acento-fuerte);
-}
-
-.boton-accion:disabled {
-  background-color: var(--gris-100);
-  border-color: var(--gris-300);
-  color: var(--gris-400);
-  cursor: not-allowed;
 }
 
 /* Resultado */

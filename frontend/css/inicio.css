@@ -195,7 +195,13 @@
   background-color: var(--blanco);
 }
 
-.tarjeta-acento {
+.tarjeta-nivel {
+  transition: border-color var(--transicion), box-shadow var(--transicion),
+              opacity 500ms ease, translate 500ms ease;
+}
+
+body[data-nivel="basico"] .tarjeta-nivel[data-nivel="basico"],
+body[data-nivel="avanzado"] .tarjeta-nivel[data-nivel="avanzado"] {
   border-color: var(--acento);
   box-shadow: 6px 6px 0 var(--acento);
 }
@@ -324,6 +330,50 @@
   transition-delay: 200ms;
 }
 
+.pasos-inicio.secuencia .paso-inicio {
+  opacity: 0;
+  translate: 0 1.5rem;
+  transition: opacity 500ms ease, translate 500ms ease;
+}
+
+.pasos-inicio.secuencia .paso-inicio::after {
+  scale: 1 0;
+  transform-origin: top;
+  transition: scale 400ms ease;
+}
+
+.pasos-inicio.secuencia.revelado .paso-inicio {
+  opacity: 1;
+  translate: 0;
+}
+
+.pasos-inicio.secuencia.revelado .paso-inicio::after {
+  scale: 1;
+}
+
+.pasos-inicio.revelado .paso-inicio:nth-child(1)::after {
+  transition-delay: 500ms;
+}
+
+.pasos-inicio.revelado .paso-inicio:nth-child(2) {
+  transition-delay: 900ms;
+}
+
+.pasos-inicio.revelado .paso-inicio:nth-child(2)::after {
+  transition-delay: 1400ms;
+}
+
+.pasos-inicio.revelado .paso-inicio:nth-child(3) {
+  transition-delay: 1800ms;
+}
+
+@media (min-width: 960px) {
+  .pasos-inicio.secuencia .paso-inicio::after {
+    scale: 0 1;
+    transform-origin: left;
+  }
+}
+
 /* Cierre */
 .cierre {
   display: flex;
@@ -394,6 +444,7 @@
 }
 
 .significado-letras {
+  font-family: var(--fuente);
   font-size: var(--texto-xl);
   line-height: 1;
   color: var(--acento);

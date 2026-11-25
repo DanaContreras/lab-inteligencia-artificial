@@ -99,12 +99,21 @@ app.post("/api/proyectos/:id/dataset", async (req, res) => {
             error: error.message || "No se pudo guardar el dataset."
         });
     }
-}),
+});
 
 
 app.post("/api/proyectos/:id/entrenar", async (req, res) => {
     try{
         const {id} = req.params;
+
+        // Parámetros opcionales del nivel avanzado (épocas y neuronas)
+        const parametros = leerParametros("red", req.body.parametros);
+
+        if (!parametros) {
+            return res.status(400).json({
+                error: "Parámetros inválidos."
+            });
+        }
 
         //console.log("Dentro del endpoint de entrenamiento")
 
@@ -172,7 +181,8 @@ app.post("/api/proyectos/:id/entrenar", async (req, res) => {
                     [
                         scriptPython,
                         carpetaDataset,
-                        carpetaModelo
+                        carpetaModelo,
+                        JSON.stringify(parametros)
                     ],
                     { cwd: __dirname }
                 );
@@ -337,6 +347,235 @@ async function leerProyecto(id) {
         return null;
     }
 }
+
+
+// Métodos de clasificación del nivel avanzado
+const METODOS = {
+    red: {
+        archivo: "modelo.keras",
+        parametros: {
+            epocas: { min: 1, max: 100, entero: true },
+            neuronas: { min: 10, max: 200, entero: true }
+        }
+    },
+    arbol: {
+        archivo: "arbol.joblib",
+        parametros: { profundidad: { min: 1, max: 10, entero: true } }
+    },
+    svm: {
+        archivo: "svm.joblib",
+        parametros: {
+            kernel: { opciones: ["rbf", "linear"] },
+            c: { min: 0.1, max: 10 }
+        }
+    },
+    knn: {
+        archivo: "knn.joblib",
+        parametros: { k: { min: 1, max: 15, entero: true } }
+    }
+};
+
+const METODOS_SKLEARN = ["arbol", "svm", "knn"];
+
+function leerParametros(metodo, parametros = {}) {
+    if (typeof parametros !== "object" || parametros === null) return null;
+
+    const limpios = {};
+
+    for (const [nombre, regla] of Object.entries(METODOS[metodo].parametros)) {
+        const valor = parametros[nombre];
+
+        if (valor === undefined) continue;
+
+        const valido = regla.opciones
+            ? regla.opciones.includes(valor)
+            : Number.isFinite(valor) &&
+              valor >= regla.min &&
+              valor <= regla.max &&
+              (!regla.entero || Number.isInteger(valor));
+
+        if (!valido) return null;
+
+        limpios[nombre] = valor;
+    }
+
+    return limpios;
+}
+
+function leerUltimoJson(salida) {
+    try {
+        return JSON.parse(salida.trim().split("\n").pop());
+    } catch {
+        return null;
+    }
+}
+
+function ejecutarPython(script, argumentos, entrada) {
+    return new Promise((resolve, reject) => {
+        const proceso = spawn(
+            process.env.PYTHON || "python",
+            [path.join(__dirname, "modelos", script), ...argumentos],
+            { cwd: __dirname }
+        );
+
+        let salida = "";
+        let errores = "";
+
+        proceso.stdout.on("data", (dato) => { salida += dato; });
+        proceso.stderr.on("data", (dato) => { errores += dato; });
+        proceso.on("error", reject);
+
+        proceso.on("close", (codigo) => {
+            if (codigo !== 0) {
+                console.error(`[PYTHON ${script}]:`, errores);
+                return reject(new Error(
+                    errores.trim().split("\n").pop() || `Python terminó con código ${codigo}`
+                ));
+            }
+
+            const resultado = leerUltimoJson(salida);
+
+            if (!resultado) {
+                return reject(new Error("Python devolvió una respuesta inválida."));
+            }
+
+            resolve(resultado);
+        });
+
+        proceso.stdin.end(entrada === undefined ? "" : JSON.stringify(entrada));
+    });
+}
+
+// Entrenar árbol de decisión, SVM o KNN
+app.post("/api/proyectos/:id/entrenar-modelo", async (req, res) => {
+    try {
+        const { metodo } = req.body;
+
+        if (!METODOS_SKLEARN.includes(metodo)) {
+            return res.status(400).json({ error: "Método desconocido." });
+        }
+
+        const parametros = leerParametros(metodo, req.body.parametros);
+
+        if (!parametros) {
+            return res.status(400).json({ error: "Parámetros inválidos." });
+        }
+
+        const leido = await leerProyecto(req.params.id);
+
+        if (!leido) {
+            return res.status(404).json({ error: "No se encontró el proyecto." });
+        }
+
+        const resultado = await ejecutarPython("entrenar_modelos.py", [
+            path.join(leido.carpeta, "dataset"),
+            path.join(leido.carpeta, "modelos"),
+            metodo,
+            JSON.stringify(parametros)
+        ]);
+
+        return res.status(200).json({
+            mensaje: "Entrenamiento finalizado.",
+            metodo,
+            parametros: resultado.parametros
+        });
+
+    } catch (error) {
+        console.error("Error al entrenar el modelo:", error);
+
+        return res.status(500).json({
+            error: error.message || "No se pudo entrenar el modelo."
+        });
+    }
+});
+
+// Predecir con árbol de decisión, SVM y/o KNN
+app.post("/api/proyectos/:id/predecir-modelos", async (req, res) => {
+    try {
+        const { imagen, metodos } = req.body;
+
+        if (
+            typeof imagen !== "string" ||
+            !imagen.startsWith("data:image/png;base64,")
+        ) {
+            return res.status(400).json({ error: "La imagen enviada no es válida." });
+        }
+
+        if (
+            !Array.isArray(metodos) ||
+            metodos.length === 0 ||
+            new Set(metodos).size !== metodos.length ||
+            !metodos.every((metodo) => METODOS_SKLEARN.includes(metodo))
+        ) {
+            return res.status(400).json({ error: "Métodos inválidos." });
+        }
+
+        const leido = await leerProyecto(req.params.id);
+
+        if (!leido) {
+            return res.status(404).json({ error: "No se encontró el proyecto." });
+        }
+
+        const carpetaModelo = path.join(leido.carpeta, "modelos");
+
+        for (const metodo of metodos) {
+            try {
+                await fs.access(path.join(carpetaModelo, METODOS[metodo].archivo));
+            } catch {
+                return res.status(404).json({
+                    error: `El método "${metodo}" todavía no está entrenado.`
+                });
+            }
+        }
+
+        const resultados = await ejecutarPython(
+            "predecir_modelos.py",
+            [carpetaModelo],
+            { imagen, metodos }
+        );
+
+        return res.status(200).json({
+            mensaje: "Predicción realizada correctamente.",
+            resultados
+        });
+
+    } catch (error) {
+        console.error("Error al predecir con los modelos:", error);
+
+        return res.status(500).json({
+            error: error.message || "Error durante la predicción."
+        });
+    }
+});
+
+// los métodos que están entrenados y con qué resultados
+app.get("/api/proyectos/:id/modelos", async (req, res) => {
+    try {
+        const leido = await leerProyecto(req.params.id);
+
+        if (!leido) {
+            return res.status(404).json({ error: "No se encontró el proyecto." });
+        }
+
+        const carpetaModelo = path.join(leido.carpeta, "modelos");
+
+        const modelos = {};
+
+        for (const [metodo, { archivo }] of Object.entries(METODOS)) {
+            modelos[metodo] = await fs.access(path.join(carpetaModelo, archivo))
+                .then(() => true, () => false);
+        }
+
+        return res.json({ modelos });
+
+    } catch (error) {
+        console.error("Error al leer los modelos:", error);
+
+        return res.status(500).json({
+            error: "No se pudieron leer los modelos."
+        });
+    }
+});
 
 app.get("/api/config/drive", (req, res) => {
     const { GOOGLE_CLIENT_ID, GOOGLE_API_KEY, GOOGLE_APP_ID } = process.env;

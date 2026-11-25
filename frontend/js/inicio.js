@@ -83,7 +83,7 @@ new IntersectionObserver(([entrada]) => {
   visible = entrada.isIntersecting;
 }).observe(redViva);
 
-const revelables = document.querySelectorAll('.seccion-titulo, .seccion-texto, .tarjeta, .paso-inicio, .cierre');
+const revelables = document.querySelectorAll('.seccion-titulo, .seccion-texto, .tarjeta, .cierre');
 
 if (!sinMovimiento.matches) {
   const observador = new IntersectionObserver((entradas) => {
@@ -96,4 +96,11 @@ if (!sinMovimiento.matches) {
     el.classList.add('revelar');
     observador.observe(el);
   });
+
+  const pasos = document.querySelector('.pasos-inicio');
+  pasos.classList.add('secuencia');
+
+  new IntersectionObserver(([entrada]) => {
+    pasos.classList.toggle('revelado', entrada.isIntersecting);
+  }, { threshold: 0.4 }).observe(pasos);
 }

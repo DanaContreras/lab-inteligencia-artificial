@@ -28,6 +28,13 @@ categorias = datos["categorias"]
 # Cargar el modelo entrenado
 modelo = tf.keras.models.load_model(carpeta_modelo / "modelo.keras")
 
+# Usar el orden de clases con el que se entrenó la red (orden alfabético)
+ruta_clases = carpeta_modelo / "clases.json"
+if ruta_clases.exists():
+    categorias = json.loads(ruta_clases.read_text("utf-8"))
+else:
+    categorias = sorted(c["nombre"] for c in categorias)
+
 
 def normalizar(imagen, centrado):
     # Quitar el encabezado data:image/png;base64,

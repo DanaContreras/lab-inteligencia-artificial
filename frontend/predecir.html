@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./css/proyecto.css">
   <link rel="stylesheet" href="./css/entrenar.css">
   <link rel="stylesheet" href="./css/predecir.css">
+  <link rel="stylesheet" href="./css/avanzado.css">
 </head>
 
 <body>
@@ -85,13 +86,6 @@
           <span class="paso-numero">3</span>
           <span class="paso-etiqueta">Predecir</span>
         </li>
-
-        <li aria-hidden="true" class="pasos-conector solo-avanzado"></li>
-
-        <li class="paso solo-avanzado">
-          <span class="paso-numero">4</span>
-          <span class="paso-etiqueta">Comparar</span>
-        </li>
       </ol>
     </nav>
 
@@ -136,6 +130,28 @@
       <canvas id="particulas" class="particulas" aria-hidden="true"></canvas>
     </section>
 
+    <div id="avanzado" class="avanzado avanzado-predecir" hidden>
+
+      <section class="tarjeta predecir-dibujo" aria-labelledby="dibujo-titulo">
+        <h2 id="dibujo-titulo" class="tarjeta-titulo">Dibujo</h2>
+
+        <div id="lugar-pizarra" class="lugar-pizarra">
+          <button type="button" id="limpiar-avanzado" class="boton-accion">Limpiar</button>
+        </div>
+      </section>
+
+      <div class="avanzado-centro">
+        <button type="button" id="predecir-avanzado" class="boton-accion boton-accion-primario">Predecir</button>
+        <p id="estado-avanzado" class="estado-avanzado" role="status"></p>
+      </div>
+
+      <section class="tarjeta predecir-resultados" aria-labelledby="resultados-titulo">
+        <h2 id="resultados-titulo" class="tarjeta-titulo">Resultados</h2>
+        <ul id="resultados" class="resultados" aria-live="polite"></ul>
+        <p id="coincidencia" class="tarjeta-texto"></p>
+      </section>
+    </div>
+
     <modales-comp></modales-comp>
 
     <p id="sin-datos" class="sin-datos" hidden>
@@ -153,22 +169,14 @@
     </svg>
   </a>
 
-  <a href="./comparar.html"
-     id="siguiente-paso"
-     class="boton-siguiente solo-avanzado"
-     aria-label="Ir al paso 4: comparar"
-     title="Comparar">
-    <svg aria-hidden="true" class="boton-siguiente-icono">
-      <use href="#flecha" />
-    </svg>
-  </a>
-
   <script src="./js/app.js"></script>
   <script src="./js/red.js"></script>
+  <script src="./js/metodos.js"></script>
   <script src="./js/modales.js"></script>
   <script src="./js/modal.js"></script>
   <script src="./js/canva.js"></script>
   <script src="./js/imagenes.js"></script>
   <script src="./js/predecir.js"></script>
+  <script src="./js/predecir-avanzado.js"></script>
 </body>
 </html>

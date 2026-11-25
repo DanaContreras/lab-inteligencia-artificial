@@ -15,6 +15,30 @@ carpeta_modelo.mkdir(parents=True, exist_ok=True)
 images, labels = [], []
 TAMANO = (32, 32)
 
+# Parámetros opcionales del nivel avanzado
+parametros = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
+EPOCAS = parametros.get("epocas", 30)
+NEURONAS = parametros.get("neuronas", 50)
+
+# Verificar que cada categoría tenga suficientes imágenes.
+categorias = sorted(
+    p.name for p in carpeta_dataset.iterdir() if p.is_dir()
+)
+
+if len(categorias) < 2:
+    raise ValueError("Se necesitan al menos dos categorías.")
+
+for categoria in categorias:
+    cantidad = sum(
+        1 for p in (carpeta_dataset / categoria).iterdir()
+        if p.is_file() and p.suffix.lower() in {
+            ".png",
+        }
+    )
+    if cantidad < 3:
+        raise ValueError(
+            f"La categoría '{categoria}' necesita al menos 3 imágenes."
+        )
 
 
 def cargarDatosConCentrado(images, labels, centrado):
@@ -85,45 +109,6 @@ def cargarDatosConCentrado(images, labels, centrado):
   labels_num = np.array([etiquetas_numericas[label] for label in labels])
 
   return images, labels_num, categorias, etiquetas_numericas
-
-
-
-
-# for subfolder in os.listdir(carpeta_dataset):
-#     category_path = os.path.join(carpeta_dataset, subfolder)
-#     print(subfolder)
-
-#     for image in os.listdir(category_path):
-#         img_path = os.path.join(category_path, image)
-#         #print(img_path)
-#         img = cv2.imread(img_path)
-
-#         #Escala de grises
-#         image_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-#         #Redimensionar
-#         resize = cv2.resize(image_gray, (160, 160))
-
-#         #Normalizar valores entre 0 y 1
-#         resize = resize.astype("float32") / 255.0
-
-#         images.append(resize)
-#         labels.append(subfolder)
-    
-# #Etiquetas categoricas a numericas
-# categorias = sorted(set(labels))
-
-# etiquetas_numericas = {
-#     categoria: i
-#     for i, categoria in enumerate(categorias)
-# }
-
-# #Convertir a arrays de numpy
-# images = np.array(images)
-# labels = np.array([
-#     etiquetas_numericas[label]
-#     for label in labels
-# ])
 
 images_norm, labels_norm, clases, etiquetas_numericas = cargarDatosConCentrado(images, labels, True)
 
@@ -196,18 +181,12 @@ y_val = labels_norm[indices_val]
 n_categorias = len(np.unique(labels))
 
 modelo = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(32,32,)),
-     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(64, activation="relu"),
-
-    tf.keras.layers.Dense(32, activation="relu"),
-
-    tf.keras.layers.Dense(
-        n_categorias,
-        activation="softmax"
-    )
-])
-
+    tf.keras.layers.Input(shape=(28,28,1)),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(NEURONAS, activation='relu'),
+    tf.keras.layers.Dense(NEURONAS, activation='relu'),
+    tf.keras.layers.Dense(len(clases), activation='softmax')]
+)
 
 modelo.compile(
     optimizer="adam",
@@ -218,7 +197,7 @@ modelo.compile(
 historial = modelo.fit(
     X_train,
     y_train,
-    epochs=30,
+    epochs=EPOCAS,
     validation_data=(X_val, y_val),
     callbacks=[
         tf.keras.callbacks.EarlyStopping(
