@@ -21,10 +21,11 @@ def cargarDatosConCentrado(images, labels, centrado):
   for subfolder in sorted(os.listdir(carpeta_dataset)):
     category_path = os.path.join(carpeta_dataset, subfolder)
         
-    #print(subfolder)
+    print(subfolder)
 
     for image in os.listdir(category_path):
         img_path = os.path.join(category_path, image)
+        print(img_path)
         img = cv2.imread(img_path)
 
         #Escala de grises original
@@ -161,30 +162,30 @@ y_train = labels_norm[indices_train]
 y_val = labels_norm[indices_val]
 
 
-print("Entrenamiento:", X_train.shape)
-print("Validación:", X_val.shape)
+# print("Entrenamiento:", X_train.shape)
+# print("Validación:", X_val.shape)
 
-print("Total:", len(X_train) + len(X_val))
+# print("Total:", len(X_train) + len(X_val))
 
-print("Distribución del dataset:")
-print(np.unique(labels, return_counts=True))
+# print("Distribución del dataset:")
+# print(np.unique(labels, return_counts=True))
 
-print("Distribución entrenamiento:")
-print(np.unique(y_train, return_counts=True))
+# print("Distribución entrenamiento:")
+# print(np.unique(y_train, return_counts=True))
 
-print("Distribución validación:")
-print(np.unique(y_val, return_counts=True))
+# print("Distribución validación:")
+# print(np.unique(y_val, return_counts=True))
 
-categorias = sorted(set(labels))
-fig, ejes = plt.subplots(2, 5, figsize=(10, 5))
+# categorias = sorted(set(labels))
+# fig, ejes = plt.subplots(2, 3, figsize=(10, 5))
 
-for i, ax in enumerate(ejes.flat):
-    ax.imshow(X_train[i], cmap="gray")
-    ax.set_title(categorias[y_train[i]])
-    ax.axis("off")
+# for i, ax in enumerate(ejes.flat):
+#     ax.imshow(X_train[i], cmap="gray")
+#     ax.set_title(categorias[y_train[i]])
+#     ax.axis("off")
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
 
 
 
