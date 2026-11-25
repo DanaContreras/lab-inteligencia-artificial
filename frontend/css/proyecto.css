@@ -135,6 +135,7 @@ body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
 }
 
 .categoria-eliminar {
+  font-family: var(--fuente);
   flex-shrink: 0;
   padding: 0.25rem 0.5rem;
 
@@ -168,6 +169,7 @@ body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
 }
 
 .categoria-agregar {
+  font-family: var(--fuente);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,6 +204,7 @@ body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
 /* Agregar categoría */
 
 .boton-agregar {
+  font-family: var(--fuente);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -382,7 +385,12 @@ body:not([data-nivel="avanzado"]) .paso:has(+ .solo-avanzado) .paso-etiqueta {
 
 .modal-encabezado h1 {
     margin: 0;
+    font-size: var(--texto-xl);
     text-align: left;
+}
+
+.modal-encabezado h2 {
+    font-size: var(--texto-lg);
 }
 
 .cerrar-modal {
