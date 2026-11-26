@@ -6,6 +6,7 @@ const btnAgregar     = document.getElementById('agregar-categoria');
 const btnSiguiente   = document.getElementById('siguiente-paso');
 
 const MIN_CATEGORIAS = 2;
+const MAX_CATEGORIAS = 8;
 const MIN_MUESTRAS = 3;
 let contador = 0;
 
@@ -48,11 +49,15 @@ function actualizarBotonesEliminar() {
     btn.disabled = !puedeEliminar;
     btn.classList.toggle('invisible', !puedeEliminar);
   }
+
+  btnAgregar.hidden = lista.children.length >= MAX_CATEGORIAS;
 }
 
 
 // Agregar
 btnAgregar.addEventListener('click', () => {
+  if (lista.children.length >= MAX_CATEGORIAS) return;
+
   const tarjeta = crearCategoria();
   const campo = tarjeta.querySelector('[data-nombre]');
   campo.focus();
