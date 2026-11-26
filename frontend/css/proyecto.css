@@ -223,6 +223,10 @@ body[data-menu="abierto"] .topbar {
               color 150ms ease;
 }
 
+.boton-agregar[hidden] {
+  display: none;
+}
+
 .boton-agregar:hover {
   background-color: var(--acento);
   border-color: var(--acento);
