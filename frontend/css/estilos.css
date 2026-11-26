@@ -119,6 +119,11 @@ body {
   visibility: hidden;
 }
 
+.marca {
+  font-weight: 700;
+  color: var(--acento);
+}
+
 svg[hidden] {
   display: none;
 }
