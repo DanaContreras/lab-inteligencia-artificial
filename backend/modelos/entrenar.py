@@ -14,6 +14,7 @@ carpeta_modelo.mkdir(parents=True, exist_ok=True)
 
 images, labels = [], []
 TAMANO = (32, 32)
+SEMILLA = 42
 
 # Parámetros opcionales del nivel avanzado
 parametros = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
@@ -45,11 +46,11 @@ def cargarDatosConCentrado(images, labels, centrado):
   for subfolder in sorted(os.listdir(carpeta_dataset)):
     category_path = os.path.join(carpeta_dataset, subfolder)
         
-    print(subfolder)
+    #print(subfolder)
 
     for image in os.listdir(category_path):
         img_path = os.path.join(category_path, image)
-        print(img_path)
+        #print(img_path)
         img = cv2.imread(img_path)
 
         #Escala de grises original
@@ -75,7 +76,7 @@ def cargarDatosConCentrado(images, labels, centrado):
               # Crear un lienzo vacío de 32x32 completamente BLANCO (valor 255)
               lienzo = np.ones(TAMANO, dtype=np.uint8) * 255
 
-              # Redimensionar el recorte manteniendo la proporción para que quepa en 24x24
+              # Redimensionar el recorte manteniendo la proporción
               h_rec, w_rec = dibujo_recortado.shape
               max_dim = max(h_rec, w_rec)
               
@@ -102,7 +103,6 @@ def cargarDatosConCentrado(images, labels, centrado):
         images.append(resize)
         labels.append(subfolder)
 
-  categorias = sorted(list(set(labels)))
   etiquetas_numericas = {categoria: i for i, categoria in enumerate(categorias)}
 
   images = np.array(images)
@@ -111,12 +111,6 @@ def cargarDatosConCentrado(images, labels, centrado):
   return images, labels_num, categorias, etiquetas_numericas
 
 images_norm, labels_norm, clases, etiquetas_numericas = cargarDatosConCentrado(images, labels, True)
-
-# print("Dimensiones:", images_norm.shape)
-# print("Mínimo:", images_norm.min())
-# print("Máximo:", images_norm.max())
-# print("Cantidad de imagenes: ",len(images_norm))
-# print("Cantidad de etiquetas: ",len(labels_norm))
 
 # Guardar el orden de las etiquetas que utiliza la red.
 with open(
@@ -130,6 +124,7 @@ with open(
 
 #Separar en entrenamiento y validacion
 # Mezclar índices aleatoriamente
+np.random.seed(SEMILLA)
 indices = np.random.permutation(len(images_norm))
 
 # Calcular cantidad de datos para entrenamiento
@@ -147,39 +142,11 @@ y_train = labels_norm[indices_train]
 y_val = labels_norm[indices_val]
 
 
-# print("Entrenamiento:", X_train.shape)
-# print("Validación:", X_val.shape)
-
-# print("Total:", len(X_train) + len(X_val))
-
-# print("Distribución del dataset:")
-# print(np.unique(labels, return_counts=True))
-
-# print("Distribución entrenamiento:")
-# print(np.unique(y_train, return_counts=True))
-
-# print("Distribución validación:")
-# print(np.unique(y_val, return_counts=True))
-
-# categorias = sorted(set(labels))
-# fig, ejes = plt.subplots(2, 3, figsize=(10, 5))
-
-# for i, ax in enumerate(ejes.flat):
-#     ax.imshow(X_train[i], cmap="gray")
-#     ax.set_title(categorias[y_train[i]])
-#     ax.axis("off")
-
-# plt.tight_layout()
-# plt.show()
-
-
-
-#############################################3
-
-#print("\n\nARMANDO RED NEURONAL")
-
 n_categorias = len(np.unique(labels))
 
+
+
+#Crear modelo
 modelo = tf.keras.Sequential([
     tf.keras.layers.Input(shape=(32,32,1)),
     tf.keras.layers.Flatten(),
@@ -194,31 +161,7 @@ modelo.compile(
     metrics=["accuracy"],
 )
 
-historial = modelo.fit(
-    X_train,
-    y_train,
-    epochs=EPOCAS,
-    validation_data=(X_val, y_val),
-    callbacks=[
-        tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss",
-            patience=10,
-            restore_best_weights=True
-        )
-    ]
-)
-
-# print("Precisión entrenamiento:",
-#       historial.history["accuracy"][-1])
-
-# print("Precisión validación:",
-#       historial.history["val_accuracy"][-1])
-
-# print("Pérdida entrenamiento:",
-#       historial.history["loss"][-1])
-
-# print("Pérdida validación:",
-#       historial.history["val_loss"][-1])
+historial = modelo.fit(X_train, y_train, epochs=EPOCAS, validation_data=(X_val, y_val))
 
 #Guardar el modelo entrenado
 modelo.save(carpeta_modelo / "modelo.keras")

@@ -95,33 +95,15 @@
 
     <section id="escenario" class="escenario escenario-prediccion" aria-label="Predicción">
       
-      <!-- <div class="entrada">
-        <div class="selector">
-          <button type="button" class="boton-modo opcion" id="modo-dibujo" data-tipo="dibujo">
-            <span class="opcion-icono" aria-hidden="true">
-              <svg><use href="#lapiz" /></svg>
-            </span>
-            <span class="opcion-texto">Dibujo</span>
-          </button>
-
-          <button type="button" class="boton-modo opcion" id="modo-foto" data-tipo="foto">
-            <span class="opcion-icono" aria-hidden="true">
-              <svg><use href="#camara" /></svg>
-            </span>
-            <span class="opcion-texto">Foto</span>
-          </button>
-        </div> -->
-
         <div class="escenario-dibujo">
-          <button type="button" id="entrada-prediccion" class="boton-accion">Ingresar entrada</button>
           <canvas id="pizarra" class="pizarra" width="320" height="320"
                   aria-label="Lienzo para dibujar"></canvas>
 
           <div class="acciones-prediccion">
+            <button type="button" id="entrada-prediccion" class="boton-accion">Ingresar entrada</button>
             <button type="button" id="limpiar-pizarra" class="boton-accion">Limpiar</button>
             <button type="button" id="predecir" class="boton-accion boton-accion-primario">Predecir</button>
           </div>
-          
         </div>
       </div>
       
@@ -136,7 +118,10 @@
         <h2 id="dibujo-titulo" class="tarjeta-titulo">Dibujo</h2>
 
         <div id="lugar-pizarra" class="lugar-pizarra">
-          <button type="button" id="limpiar-avanzado" class="boton-accion">Limpiar</button>
+          <div class="acciones-avanzado">
+            <button type="button" id="entrada-avanzado" class="boton-accion">Ingresar entrada</button>
+            <button type="button" id="limpiar-avanzado" class="boton-accion">Limpiar</button>
+          </div>
         </div>
       </section>
 

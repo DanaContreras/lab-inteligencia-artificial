@@ -8,6 +8,7 @@ const estado      = document.getElementById('estado');
 const btnDibujo = document.getElementById('modo-dibujo');
 const btnFoto = document.getElementById('modo-foto');
 const btnCapturar = document.getElementById('tomar-foto');
+const entrada = document.getElementById('entrada-prediccion')
 
 const TEXTO_INICIAL = 'Dibuja algo y presiona Predecir';
 
@@ -27,44 +28,6 @@ function limpiarPizarra() {
 }
 
 btnLimpiar.addEventListener('click', limpiarPizarra);
-
-// function posicion(event) {
-//   const r = pizarra.getBoundingClientRect();
-//   return {
-//     x: (event.clientX - r.left) * (pizarra.width / r.width),
-//     y: (event.clientY - r.top) * (pizarra.height / r.height),
-//   };
-// }
-
-// function trazar(desde, hasta) {
-//   pctx.beginPath();
-//   pctx.lineCap = 'round';
-//   pctx.strokeStyle = erasing ? '#ffffff' : drawColor;
-//   pctx.lineWidth = erasing ? 20 : lineWidth;
-//   pctx.moveTo(desde.x, desde.y);
-//   pctx.lineTo(hasta.x, hasta.y);
-//   pctx.stroke();
-// }
-
-// pizarra.addEventListener('pointerdown', (event) => {
-//   isDrawing = true;
-//   pizarra.setPointerCapture(event.pointerId);
-//   ultimo = posicion(event);
-//   trazar(ultimo, ultimo); 
-// });
-
-// pizarra.addEventListener('pointermove', (event) => {
-//   if (!isDrawing) return;
-//   const actual = posicion(event);
-//   trazar(ultimo, actual);
-//   ultimo = actual;
-// });
-
-// for (const evento of ['pointerup', 'pointercancel']) {
-//   pizarra.addEventListener(evento, () => { isDrawing = false; });
-// }
-
-
 
 
 async function clasificar(imagen) {
@@ -192,6 +155,7 @@ function quitarResultado() {
 
 function bloquear(valor) {
   btnLimpiar.disabled = valor;
+  entrada.disabled = valor
   btnPredecir.disabled = valor;
 }
 
@@ -271,8 +235,6 @@ if (datos.length) {
 }
 
 //Selector de entrada
-const entrada = document.getElementById('entrada-prediccion')
-
 entrada.addEventListener('click', async () => {
   modal.showModal();
 })

@@ -8,6 +8,7 @@ const coincidencia    = document.getElementById('coincidencia');
 const btnLimpiarAv    = document.getElementById('limpiar-avanzado');
 const btnPredecirAv   = document.getElementById('predecir-avanzado');
 const estadoAvanzado  = document.getElementById('estado-avanzado');
+const entradaAvanzado = document.getElementById('entrada-avanzado')
 
 let modelos = null;
 let predicciones = {};
@@ -36,6 +37,7 @@ function pintarResultados() {
 
   listaResultados.replaceChildren(...metodos.map((metodo) => {
     const prediccion = predicciones[metodo];
+    console.log("Prediccion:", prediccion)
     const item = crearElemento('li', 'resultado');
     const valor = crearElemento('span', prediccion ? 'resultado-valor resultado-valor-listo' : 'resultado-valor',
       prediccion?.categoria ?? '—');
@@ -75,6 +77,10 @@ pizarra.addEventListener('pointerup', () => {
 
 
 // Acciones
+entradaAvanzado.addEventListener('click', async () => {
+  modal.showModal();
+})
+
 btnLimpiarAv.addEventListener('click', () => {
   limpiarPizarra();
   predicciones = {};
@@ -93,6 +99,7 @@ btnPredecirAv.addEventListener('click', async () => {
   pulsarPredecir(false);
   btnPredecirAv.disabled = true;
   btnLimpiarAv.disabled = true;
+  entradaAvanzado.disabled = true;
   estadoAvanzado.replaceChildren('Prediciendo', puntosEspera());
 
   try {
@@ -104,9 +111,11 @@ btnPredecirAv.addEventListener('click', async () => {
       otros.length ? pedirProyecto('/predecir-modelos', { imagen, metodos: otros }) : null,
     ]);
 
+
     predicciones = { ...demas?.resultados };
     if (red) {
-      const { categoria, indice, prediccion } = red.resultado;
+      const { categorias, indice, prediccion } = red.resultado;
+      categoria = categorias[indice]
       predicciones.red = { categoria, confianza: prediccion?.[0]?.[indice] };
     }
     estadoAvanzado.textContent = '';
@@ -116,6 +125,7 @@ btnPredecirAv.addEventListener('click', async () => {
     estadoAvanzado.textContent = error.message;
   }
 
+  entradaAvanzado.disabled = false
   btnLimpiarAv.disabled = false;
   pintarResultados();
 });
