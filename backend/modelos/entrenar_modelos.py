@@ -21,27 +21,6 @@ SEMILLA = 42
 LOTE = 10
 images, labels = [], []
 
-# #Cargar el dataset con la misma división que usa la red neuronal
-# def cargar(subset):
-#     datos = tf.keras.utils.image_dataset_from_directory(
-#         carpeta_dataset,
-#         label_mode="int",
-#         color_mode="grayscale",
-#         image_size=TAMANO,
-#         shuffle=True,
-#         seed=SEMILLA,
-#         validation_split=0.2,
-#         subset=subset,
-#         batch_size=LOTE,
-#     )
-#     imagenes, etiquetas = [], []
-#     for lote, etiquetas_lote in datos:
-#         imagenes.append(lote.numpy().reshape(len(lote), -1) / 255.0)
-#         etiquetas.append(etiquetas_lote.numpy())
-#     return datos.class_names, np.concatenate(imagenes), np.concatenate(etiquetas)
-
-# clases, x_entrenamiento, y_entrenamiento = cargar("training")
-
 categorias = sorted(
     p.name for p in carpeta_dataset.iterdir() if p.is_dir()
 )

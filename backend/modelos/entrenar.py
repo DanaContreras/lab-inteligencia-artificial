@@ -41,6 +41,16 @@ for categoria in categorias:
             f"La categoría '{categoria}' necesita al menos 3 imágenes."
         )
 
+def leer_imagen_unicode(ruta):
+    try:
+        # Lee los bytes del archivo soportando tildes, 'ñ' y caracteres especiales en Windows
+        bytes_archivo = np.fromfile(ruta, dtype=np.uint8)
+        img = cv2.imdecode(bytes_archivo, cv2.IMREAD_COLOR)
+        return img
+    except Exception as e:
+        print(f"Error al leer {ruta}: {e}")
+        return None
+
 
 def cargarDatosConCentrado(images, labels, centrado):
   for subfolder in sorted(os.listdir(carpeta_dataset)):
@@ -51,7 +61,7 @@ def cargarDatosConCentrado(images, labels, centrado):
     for image in os.listdir(category_path):
         img_path = os.path.join(category_path, image)
         #print(img_path)
-        img = cv2.imread(img_path)
+        img = leer_imagen_unicode(img_path)
 
         #Escala de grises original
         image_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -80,7 +90,7 @@ def cargarDatosConCentrado(images, labels, centrado):
               h_rec, w_rec = dibujo_recortado.shape
               max_dim = max(h_rec, w_rec)
               
-              escala = 24.0 / max_dim
+              escala = 32.0 / max_dim
               nuevo_h = int(h_rec * escala)
               nuevo_w = int(w_rec * escala)
               
@@ -100,6 +110,9 @@ def cargarDatosConCentrado(images, labels, centrado):
         #Normalizar valores entre 0 y 1
         resize = processed.astype("float32") / 255.0
 
+        guardar_comparativa_informe(img, resize)
+
+        
         images.append(resize)
         labels.append(subfolder)
 
@@ -119,7 +132,6 @@ with open(
     encoding="utf-8"
 ) as archivo:
     json.dump(clases, archivo, ensure_ascii=False, indent=2)
-
 
 
 #Separar en entrenamiento y validacion
@@ -144,7 +156,15 @@ y_val = labels_norm[indices_val]
 
 n_categorias = len(np.unique(labels))
 
+fig, ejes = plt.subplots(2, 3, figsize=(10, 5))
 
+for i, ax in enumerate(ejes.flat):
+    ax.imshow(X_train[i], cmap="gray")
+    ax.set_title(f"{categorias[y_train[i]]} indice: {i}")
+    ax.axis("off")
+
+plt.tight_layout()
+plt.show()
 
 #Crear modelo
 modelo = tf.keras.Sequential([
